@@ -12,6 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { apiUrl } from "@/lib/api-origin";
 
 type Tab = "containers" | "images" | "networks" | "volumes";
 
@@ -45,7 +46,7 @@ export function DockerView() {
   const fetchContainers = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const res = await fetch("/api/docker/containers");
+      const res = await fetch(apiUrl("/api/docker/containers"));
       const data = await res.json();
       if (res.ok) setContainers(data);
       else setError(data.error);
@@ -56,7 +57,7 @@ export function DockerView() {
   const fetchImages = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const res = await fetch("/api/docker/images");
+      const res = await fetch(apiUrl("/api/docker/images"));
       const data = await res.json();
       if (res.ok) setImages(data);
       else setError(data.error);
@@ -67,7 +68,7 @@ export function DockerView() {
   const fetchNetworks = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const res = await fetch("/api/docker/networks");
+      const res = await fetch(apiUrl("/api/docker/networks"));
       const data = await res.json();
       if (res.ok) setNetworks(data);
       else setError(data.error);
@@ -78,7 +79,7 @@ export function DockerView() {
   const fetchVolumes = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const res = await fetch("/api/docker/volumes");
+      const res = await fetch(apiUrl("/api/docker/volumes"));
       const data = await res.json();
       if (res.ok) setVolumes(data);
       else setError(data.error);
@@ -95,7 +96,7 @@ export function DockerView() {
 
   const handleAction = async (containerId: string, action: string) => {
     try {
-      await fetch("/api/docker/action", {
+      await fetch(apiUrl("/api/docker/action"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ containerId, action }),
@@ -108,7 +109,7 @@ export function DockerView() {
     setLogsContainer(container);
     setLoadingLogs(true);
     try {
-      const res = await fetch(`/api/docker/logs?containerId=${container.id}&tail=200`);
+      const res = await fetch(apiUrl(`/api/docker/logs?containerId=${container.id}&tail=200`));
       const data = await res.json();
       setContainerLogs(data.logs?.map((l: { message: string }) => l.message) || []);
     } catch (e) {
@@ -349,7 +350,7 @@ function ExecDialog({ container, onClose }: { container: ContainerInfo; onClose:
     setHistory(prev => [...prev, { cmd, output: "" }]);
     setLoading(true);
     try {
-      const res = await fetch("/api/docker/exec", {
+      const res = await fetch(apiUrl("/api/docker/exec"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ containerId: container.id, command: cmd }),

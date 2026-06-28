@@ -3,8 +3,9 @@
 
 use std::sync::Arc;
 use axum::{
-    extract::{Path, Query, State, ws::{Message, WebSocketUpgrade, WebSocket}},
+    extract::{Path, Query, Request, State, ws::{Message, WebSocketUpgrade, WebSocket}},
     http::StatusCode,
+    middleware::{self, Next},
     response::{IntoResponse, Json, Response},
     routing::{get, post, put, delete},
     Router,
@@ -26,6 +27,40 @@ pub struct AppState {
     pub store: Arc<Store>,
     pub pm: Arc<ProcessManager>,
     pub event_bus: Arc<EventBus>,
+    /// When `Some`, every request must include `?token=<value>`.
+    /// `None` means auth is disabled (sandbox / dev mode).
+    pub auth_token: Option<String>,
+}
+
+// ---------------------------------------------------------------------------
+// Token authentication middleware
+// ---------------------------------------------------------------------------
+
+async fn auth_middleware(
+    State(state): State<AppState>,
+    req: Request,
+    next: Next,
+) -> Response {
+    if let Some(expected) = &state.auth_token {
+        // Extract token from query string: ?token=<value>
+        let uri = req.uri();
+        let has_valid_token = uri.query()
+            .and_then(|q| {
+                q.split('&').find_map(|pair| {
+                    let mut parts = pair.splitn(2, '=');
+                    let key = parts.next()?;
+                    let val = parts.next()?;
+                    if key == "token" { Some(val.to_owned()) } else { None }
+                })
+            })
+            .map(|tok| tok == *expected)
+            .unwrap_or(false);
+
+        if !has_valid_token {
+            return (StatusCode::UNAUTHORIZED, "invalid or missing token").into_response();
+        }
+    }
+    next.run(req).await
 }
 
 pub fn router(state: AppState) -> Router {
@@ -83,10 +118,23 @@ pub fn router(state: AppState) -> Router {
         .route("/api/database/redis/execute", post(redis_execute_endpoint))
         // Resource History (Feature 9)
         .route("/api/services/:id/history", get(get_resource_history))
+        // Docker + storage (desktop — ported from Next.js API routes)
+        .route("/api/docker/containers", get(crate::desktop_api::docker_containers))
+        .route("/api/docker/images", get(crate::desktop_api::docker_images))
+        .route("/api/docker/networks", get(crate::desktop_api::docker_networks))
+        .route("/api/docker/volumes", get(crate::desktop_api::docker_volumes))
+        .route("/api/docker/action", post(crate::desktop_api::docker_action))
+        .route("/api/docker/logs", get(crate::desktop_api::docker_logs))
+        .route("/api/docker/exec", post(crate::desktop_api::docker_exec))
+        .route("/api/storage/overview", get(crate::desktop_api::storage_overview))
+        .route("/api/storage/caches", get(crate::desktop_api::storage_caches))
+        .route("/api/storage/delete", post(crate::desktop_api::storage_delete))
+        .route("/api/storage/projects", post(crate::desktop_api::storage_projects))
         // Health
         .route("/api/health", get(health))
         // WebSocket
         .route("/ws", get(ws_handler))
+        .layer(middleware::from_fn_with_state(state.clone(), auth_middleware))
         .layer(tower_http::cors::CorsLayer::very_permissive())
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .with_state(state)

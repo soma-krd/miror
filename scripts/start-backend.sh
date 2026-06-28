@@ -21,7 +21,11 @@ fi
 
 cd "$BACKEND_DIR"
 
+# In the sandbox/dev environment the gateway proxy runs on the host and needs
+# to reach the backend, so we bind to all interfaces here.
+# No auth token is set — auth is disabled in dev mode.
 MIROR_PORT=3001 \
+MIROR_BIND_ADDR=0.0.0.0 \
 MIROR_DATA_DIR="$DATA_DIR" \
 RUST_LOG=info \
 setsid ./target/release/miror-backend > "$LOG_FILE" 2>&1 < /dev/null &

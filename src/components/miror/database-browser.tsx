@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { backend } from "@/lib/backend-client";
 import { cn } from "@/lib/utils";
+import { apiUrl } from "@/lib/api-origin";
 
 // Database Browser — connect to SQLite/PostgreSQL databases running in your
 // services. Browse tables, view row counts, run SQL queries inline.
@@ -54,7 +55,7 @@ export function DatabaseBrowser({ open, onOpenChange, defaultPath }: DatabaseBro
     try {
       // Try SQLite first (file path)
       const res = await fetch(
-        `${getGatewayOrigin()}/api/database/sqlite/info?path=${encodeURIComponent(dbPath)}&XTransformPort=3001`
+        apiUrl(`/api/database/sqlite/info?path=${encodeURIComponent(dbPath)}`)
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -75,7 +76,7 @@ export function DatabaseBrowser({ open, onOpenChange, defaultPath }: DatabaseBro
     setLoadingQuery(true);
     setError(null);
     try {
-      const res = await fetch(`${getGatewayOrigin()}/api/database/sqlite/query?XTransformPort=3001`, {
+      const res = await fetch(apiUrl("/api/database/sqlite/query"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ path: dbPath, sql }),
@@ -101,7 +102,7 @@ export function DatabaseBrowser({ open, onOpenChange, defaultPath }: DatabaseBro
     setLoadingQuery(true);
     setError(null);
     try {
-      const res = await fetch(`${getGatewayOrigin()}/api/database/sqlite/query?XTransformPort=3001`, {
+      const res = await fetch(apiUrl("/api/database/sqlite/query"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ path: dbPath, sql: sqlText }),
@@ -261,9 +262,3 @@ export function DatabaseBrowser({ open, onOpenChange, defaultPath }: DatabaseBro
   );
 }
 
-function getGatewayOrigin(): string {
-  if (typeof window === "undefined") return "";
-  return window.location.port === "3000"
-    ? `${window.location.protocol}//${window.location.hostname}:81`
-    : "";
-}

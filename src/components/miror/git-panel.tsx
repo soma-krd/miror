@@ -37,12 +37,7 @@ export function GitPanel({ projectId }: { projectId: string }) {
   const refresh = async () => {
     setLoading(true);
     try {
-      const origin = typeof window !== "undefined" && window.location.port === "3000"
-        ? `${window.location.protocol}//${window.location.hostname}:81`
-        : "";
-      const res = await fetch(`${origin}/api/projects/${projectId}/git?XTransformPort=3001`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const data = await backend.getGitStatus(projectId);
       setStatus(data);
     } catch (e) {
       console.warn("git status failed:", e);

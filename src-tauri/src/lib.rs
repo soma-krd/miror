@@ -1,7 +1,7 @@
 // Miror Tauri main entry point.
 //
 // This file implements:
-//   1. Sidecar backend spawning (port 3001)
+//   1. Sidecar backend spawning on a random loopback port with a shared secret
 //   2. System tray icon with click handler
 //   3. Compact popup window anchored to tray icon position
 //   4. Hide-to-tray on main window close (instead of quitting)
@@ -19,9 +19,18 @@ use tauri::{
 use tauri_plugin_notification::NotificationExt;
 use tauri_plugin_shell::process::CommandEvent;
 
-// App state — holds the last known cursor position for tray popup placement
+// ---------------------------------------------------------------------------
+// App state
+// ---------------------------------------------------------------------------
+
+/// Holds the backend port/token so the UI can retrieve them via a command.
+struct BackendConfig {
+    port: u16,
+    token: String,
+}
+
 struct AppState {
-    last_cursor_pos: Mutex<(i32, i32)>,
+    backend: Mutex<Option<BackendConfig>>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -225,28 +234,70 @@ fn quit_app(app: AppHandle) {
 // Main setup
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Commands
+// ---------------------------------------------------------------------------
+
+#[tauri::command]
+fn get_backend_config(state: tauri::State<'_, AppState>) -> serde_json::Value {
+    let guard = state.backend.lock().unwrap();
+    match guard.as_ref() {
+        Some(cfg) => serde_json::json!({ "port": cfg.port, "token": cfg.token }),
+        None => serde_json::json!(null),
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Free-port helper
+// ---------------------------------------------------------------------------
+
+/// Bind to 127.0.0.1:0, retrieve the OS-assigned port, then drop the
+/// listener so the backend can bind to the same address.
+fn pick_free_port() -> u16 {
+    use std::net::TcpListener;
+    let listener = TcpListener::bind(("127.0.0.1", 0))
+        .expect("failed to bind ephemeral port");
+    listener.local_addr().unwrap().port()
+    // listener is dropped here, releasing the port
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_notification::init())
         .manage(AppState {
-            last_cursor_pos: Mutex::new((0, 0)),
+            backend: Mutex::new(None),
         })
         .invoke_handler(tauri::generate_handler![
             show_main_window,
             hide_tray_popup,
             show_native_notification,
             quit_app,
+            get_backend_config,
         ])
         .setup(|app| {
-            // 1. Spawn the backend sidecar on app launch
+            // 1. Spawn the backend sidecar on app launch with a random loopback
+            //    port and a shared secret token so only this app can reach it.
             #[cfg(desktop)]
             {
                 use tauri_plugin_shell::ShellExt;
+
+                // Pick a free loopback port and generate a one-time token.
+                let port = pick_free_port();
+                let token = format!("{}{}", uuid::Uuid::new_v4().simple(), uuid::Uuid::new_v4().simple());
+
+                // Store config so the UI can retrieve it via get_backend_config.
+                *app.state::<AppState>().backend.lock().unwrap() =
+                    Some(BackendConfig { port, token: token.clone() });
+
                 let sidecar = app.shell().sidecar("miror-backend")
                     .expect("failed to find miror-backend sidecar");
-                let (mut rx, _child) = sidecar.spawn()
+                let (mut rx, _child) = sidecar
+                    .env("MIROR_PORT", port.to_string())
+                    .env("MIROR_BIND_ADDR", "127.0.0.1")
+                    .env("MIROR_AUTH_TOKEN", &token)
+                    .spawn()
                     .expect("failed to spawn miror-backend sidecar");
 
                 tauri::async_runtime::spawn(async move {

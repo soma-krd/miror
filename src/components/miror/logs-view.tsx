@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { apiUrl } from "@/lib/api-origin";
 import type { LogEntry, LogType } from "@/lib/types";
 import { useMiror } from "@/store/miror-store";
 import { StatusDot } from "./status-badge";
@@ -64,7 +65,7 @@ export function LogsView() {
 
   const fetchDockerContainers = async () => {
     try {
-      const res = await fetch("/api/docker/containers");
+      const res = await fetch(apiUrl("/api/docker/containers"));
       if (res.ok) {
         const data = await res.json();
         setDockerContainers(data || []);
@@ -80,7 +81,7 @@ export function LogsView() {
     }
     const containerId = activeServiceId!.replace("docker:", "");
     setDockerLoading(true);
-    fetch(`/api/docker/logs?containerId=${containerId}&tail=500`)
+    fetch(apiUrl(`/api/docker/logs?containerId=${containerId}&tail=500`))
       .then(res => res.json())
       .then(data => {
         setDockerLogs(data.logs || []);

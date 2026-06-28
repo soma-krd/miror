@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { useMiror } from "@/store/miror-store";
 import { useSettings, applyTheme } from "@/store/settings-store";
+import { loadBackendConfig } from "@/lib/backend-config";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 import { DashboardView } from "./dashboard-view";
@@ -27,12 +28,16 @@ export function MirorApp() {
     services, logs,
   } = useMiror();
 
-  // Initial load + WS connection
+  // Initial load + WS connection.
+  // Await backend config (port + auth token) before making any API calls so
+  // the dynamic port and token are always known when the first requests fire.
   useEffect(() => {
-    _initWs();
-    refreshProjects();
-    refreshServices();
-    refreshLogs();
+    loadBackendConfig().then(() => {
+      _initWs();
+      refreshProjects();
+      refreshServices();
+      refreshLogs();
+    });
   }, [_initWs, refreshProjects, refreshServices, refreshLogs]);
 
   // Apply theme on mount and when it changes

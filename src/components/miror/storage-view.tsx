@@ -18,6 +18,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { apiUrl } from "@/lib/api-origin";
 
 type Tab = "overview" | "caches" | "projects" | "suggestions";
 
@@ -68,7 +69,7 @@ export function StorageView() {
   const fetchOverview = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const res = await fetch("/api/storage/overview");
+      const res = await fetch(apiUrl("/api/storage/overview"));
       const data = await res.json();
       if (res.ok) { setOverview(data); setScanPath(data.homeDir || ""); }
       else setError(data.error);
@@ -79,7 +80,7 @@ export function StorageView() {
   const fetchCaches = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const res = await fetch("/api/storage/caches");
+      const res = await fetch(apiUrl("/api/storage/caches"));
       const data = await res.json();
       if (res.ok) setCaches(data);
       else setError(data.error);
@@ -91,7 +92,7 @@ export function StorageView() {
     if (!scanPath.trim()) return;
     setLoading(true); setError(null);
     try {
-      const res = await fetch("/api/storage/projects", {
+      const res = await fetch(apiUrl("/api/storage/projects"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scanPath: scanPath.trim() }),
@@ -121,7 +122,7 @@ export function StorageView() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      const res = await fetch("/api/storage/delete", {
+      const res = await fetch(apiUrl("/api/storage/delete"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folderPath: deleteTarget.path, permanent: false }),

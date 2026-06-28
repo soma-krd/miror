@@ -26,6 +26,7 @@ mod services;
 mod routes;
 mod git_integration;
 mod database_browser;
+mod desktop_api;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -53,6 +54,25 @@ async fn main() -> Result<()> {
     tracing::info!("  port: {}", port);
     tracing::info!("  db:   {}", db_path.display());
 
+    // Bind address — loopback by default so no network exposure.
+    // Tauri sets MIROR_BIND_ADDR=127.0.0.1 explicitly; the sandbox dev script
+    // may override to 0.0.0.0 so the gateway proxy can reach it.
+    let bind_addr = std::env::var("MIROR_BIND_ADDR")
+        .unwrap_or_else(|_| "127.0.0.1".into());
+
+    // Optional shared secret. When set, every /api/* and /ws request must
+    // include ?token=<value> or it gets a 401. Tauri sets this at launch.
+    let auth_token = std::env::var("MIROR_AUTH_TOKEN")
+        .ok()
+        .filter(|s| !s.is_empty());
+
+    tracing::info!("  bind: {}", bind_addr);
+    if auth_token.is_some() {
+        tracing::info!("  auth: token required");
+    } else {
+        tracing::info!("  auth: disabled (dev mode)");
+    }
+
     // Initialize store + seed if empty
     let store = Arc::new(store::Store::new(&db_path)?);
     store.seed_if_empty().await?;
@@ -61,10 +81,10 @@ async fn main() -> Result<()> {
     let event_bus = Arc::new(event_bus::EventBus::new(2048));
     let pm = Arc::new(process_manager::ProcessManager::new(store.clone(), event_bus.clone()));
 
-    let state = routes::AppState { store, pm, event_bus };
+    let state = routes::AppState { store, pm, event_bus, auth_token };
     let app = routes::router(state);
 
-    let addr = format!("0.0.0.0:{}", port);
+    let addr = format!("{}:{}", bind_addr, port);
     tracing::info!("  listening on http://{}", addr);
 
     let listener = tokio::net::TcpListener::bind(&addr).await?;

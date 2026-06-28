@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useMiror } from "@/store/miror-store";
 import { cn } from "@/lib/utils";
+import { apiUrl } from "@/lib/api-origin";
 
 type Tab = "status" | "branches" | "log" | "tree" | "terminal";
 
@@ -71,25 +72,21 @@ export function GitView() {
 
   const project = projects.find(p => p.id === activeProjectId);
 
-  const gatewayOrigin = typeof window !== "undefined" && window.location.port === "3000"
-    ? `${window.location.protocol}//${window.location.hostname}:81`
-    : "";
-
   const fetchStatus = useCallback(async () => {
     if (!activeProjectId) return;
     setLoading(true);
     try {
-      const res = await fetch(`${gatewayOrigin}/api/projects/${activeProjectId}/git?XTransformPort=3001`);
+      const res = await fetch(apiUrl(`/api/projects/${activeProjectId}/git`));
       if (res.ok) setStatus(await res.json());
     } catch (e) { console.warn("git status failed:", e); }
     finally { setLoading(false); }
-  }, [activeProjectId, gatewayOrigin]);
+  }, [activeProjectId]);
 
   const fetchBranches = useCallback(async () => {
     if (!activeProjectId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/git/branches?projectId=${activeProjectId}`);
+      const res = await fetch(apiUrl(`/api/projects/${activeProjectId}/git/branches`));
       if (res.ok) setBranches(await res.json());
     } catch (e) { console.warn("git branches failed:", e); }
     finally { setLoading(false); }
@@ -99,7 +96,7 @@ export function GitView() {
     if (!activeProjectId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/git/log?projectId=${activeProjectId}&count=50`);
+      const res = await fetch(apiUrl(`/api/projects/${activeProjectId}/git/log?count=50`));
       if (res.ok) setLog(await res.json());
     } catch (e) { console.warn("git log failed:", e); }
     finally { setLoading(false); }
@@ -109,7 +106,7 @@ export function GitView() {
     if (!activeProjectId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/git/tree?projectId=${activeProjectId}&count=50`);
+      const res = await fetch(apiUrl(`/api/projects/${activeProjectId}/git/tree?count=50`));
       if (res.ok) setTree(await res.json());
     } catch (e) { console.warn("git tree failed:", e); }
     finally { setLoading(false); }
@@ -129,10 +126,10 @@ export function GitView() {
     setActionLoading(true);
     setActionResult(null);
     try {
-      const res = await fetch("/api/git/push", {
+      const res = await fetch(apiUrl(`/api/projects/${activeProjectId}/git/push`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId: activeProjectId }),
+        body: JSON.stringify({}),
       });
       const data = await res.json();
       setActionResult(data.ok ? data.output : data.error);
@@ -146,10 +143,10 @@ export function GitView() {
     setActionLoading(true);
     setActionResult(null);
     try {
-      const res = await fetch("/api/git/pull", {
+      const res = await fetch(apiUrl(`/api/projects/${activeProjectId}/git/pull`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId: activeProjectId }),
+        body: JSON.stringify({}),
       });
       const data = await res.json();
       setActionResult(data.ok ? data.output : data.error);
@@ -163,10 +160,10 @@ export function GitView() {
     setActionLoading(true);
     setActionResult(null);
     try {
-      const res = await fetch("/api/git/command", {
+      const res = await fetch(apiUrl(`/api/projects/${activeProjectId}/git/checkout`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId: activeProjectId, args: ["checkout", branch] }),
+        body: JSON.stringify({ branch }),
       });
       const data = await res.json();
       setActionResult(data.output || data.error);
@@ -184,10 +181,10 @@ export function GitView() {
     setTerminalInput("");
     setTerminalHistory(prev => [...prev, { cmd, output: "" }]);
     try {
-      const res = await fetch("/api/git/command", {
+      const res = await fetch(apiUrl(`/api/projects/${activeProjectId}/git/command`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId: activeProjectId, args }),
+        body: JSON.stringify({ args }),
       });
       const data = await res.json();
       const output = data.output || data.error || "(no output)";

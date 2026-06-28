@@ -1,29 +1,10 @@
-// Real backend client — replaces the mock process manager with HTTP + WebSocket
-// calls to the Rust backend.
+// Real backend client — HTTP + WebSocket calls to the Rust miror-backend.
 //
-// The sandbox gateway listens on port 81 and routes requests based on the
-// XTransformPort query parameter:
-//   GET  /api/services?XTransformPort=3001  →  http://localhost:3001/api/services
-//   WS   /?XTransformPort=3001              →  ws://localhost:3001/ws
-//
-// We use relative paths so the same code works:
-//   - in the sandbox (browser hits the gateway at the same origin via /?XTransformPort=)
-//   - in a Tauri desktop app (the gateway is replaced by direct localhost:3001 calls)
-//
-// IMPORTANT: In the sandbox, the browser loads the page from :3000 (Next.js)
-// but the gateway is on :81. To avoid CORS issues, we configure the client
-// to use the gateway origin explicitly.
+// Sandbox: browser on :3000 → gateway :81 with XTransformPort=3001
+// Tauri:   static UI → http://127.0.0.1:3001/api/... directly
 
-const BACKEND_PORT = 3001;
+import { apiUrl, wsUrl } from "./api-origin";
 
-// Detect gateway origin. In sandbox: same hostname, port 81.
-// In Tauri: empty string (relative URLs hit the embedded HTTP server).
-const GATEWAY_ORIGIN =
-  typeof window !== "undefined" && window.location.port === "3000"
-    ? `${window.location.protocol}//${window.location.hostname}:81`
-    : "";
-
-// WebSocket event types — mirror mini-services/miror-backend/src/models.rs
 export type WsEvent =
   | { type: "log_batch"; service_id: string; logs: import("./types").LogEntry[] }
   | { type: "status_change"; service_id: string; status: import("./types").ServiceStatus; pid: number | null }
@@ -48,10 +29,8 @@ class MirorBackend {
   private wsReconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private wsConnected = false;
 
-  // --- HTTP helpers ---
-
   private async http<T>(method: string, path: string, body?: unknown): Promise<T> {
-    const url = `${GATEWAY_ORIGIN}/api${path}${path.includes("?") ? "&" : "?"}XTransformPort=${BACKEND_PORT}`;
+    const url = apiUrl(`/api${path}`);
     const res = await fetch(url, {
       method,
       headers: body ? { "Content-Type": "application/json" } : undefined,
@@ -93,7 +72,6 @@ class MirorBackend {
   listServices() { return this.http<import("./types").Service[]>("GET", "/services"); }
   getService(id: string) { return this.http<import("./types").Service | null>("GET", `/services/${id}`); }
   createService(s: import("./types").Omit<import("./types").Service, "id" | "status">) {
-    // The backend expects snake_case — convert from the frontend's camelCase
     return this.http<import("./types").Service>("POST", "/services", {
       project_id: s.projectId,
       name: s.name,
@@ -107,7 +85,6 @@ class MirorBackend {
     });
   }
   updateService(id: string, patch: Partial<import("./types").Service>) {
-    // Convert camelCase to snake_case for the backend
     const body: Record<string, unknown> = {};
     if (patch.name !== undefined) body.name = patch.name;
     if (patch.cwd !== undefined) body.cwd = patch.cwd;
@@ -175,7 +152,6 @@ class MirorBackend {
     }>("GET", "/health");
   }
 
-  // Port Conflict Radar (Feature 1)
   scanPorts() {
     return this.http<import("./types").PortScanResult>("GET", "/ports");
   }
@@ -185,12 +161,10 @@ class MirorBackend {
     );
   }
 
-  // Health probe (Feature 2)
   runProbe(serviceId: string) {
     return this.http<{ ready: boolean; probe: unknown }>("GET", `/services/${serviceId}/probe`);
   }
 
-  // Git Integration (Feature 8)
   getGitStatus(projectId: string) {
     return this.http<{
       is_repo: boolean; branch: string; is_dirty: boolean;
@@ -199,14 +173,13 @@ class MirorBackend {
     }>("GET", `/projects/${projectId}/git`);
   }
 
-  // Database Browser — SQLite
   sqliteInfo(path: string) {
     return this.http<{ db_type: string; database: string; tables: Array<{ name: string; row_count: number; schema: string }> }>(
       "GET", `/database/sqlite/info?path=${encodeURIComponent(path)}`
     );
   }
   sqliteQuery(path: string, sql: string) {
-    return this.http<{ columns: string[]; rows: any[][]; row_count: number; truncated: boolean }>(
+    return this.http<{ columns: string[]; rows: unknown[][]; row_count: number; truncated: boolean }>(
       "POST", "/database/sqlite/query", { path, sql }
     );
   }
@@ -216,31 +189,28 @@ class MirorBackend {
     );
   }
 
-  // Database Browser — PostgreSQL
   postgresInfo(connectionString: string) {
     return this.http<{ db_type: string; database: string; tables: Array<{ name: string; row_count: number; schema: string }> }>(
       "POST", "/database/postgres/info", { connection_string: connectionString }
     );
   }
   postgresQuery(connectionString: string, sql: string) {
-    return this.http<{ columns: string[]; rows: any[][]; row_count: number; truncated: boolean }>(
+    return this.http<{ columns: string[]; rows: unknown[][]; row_count: number; truncated: boolean }>(
       "POST", "/database/postgres/query", { connection_string: connectionString, sql }
     );
   }
 
-  // Database Browser — MySQL
   mysqlInfo(connectionString: string) {
     return this.http<{ db_type: string; database: string; tables: Array<{ name: string; row_count: number; schema: string }> }>(
       "POST", "/database/mysql/info", { connection_string: connectionString }
     );
   }
   mysqlQuery(connectionString: string, sql: string) {
-    return this.http<{ columns: string[]; rows: any[][]; row_count: number; truncated: boolean }>(
+    return this.http<{ columns: string[]; rows: unknown[][]; row_count: number; truncated: boolean }>(
       "POST", "/database/mysql/query", { connection_string: connectionString, sql }
     );
   }
 
-  // Database Browser — Redis
   redisScan(connectionString: string, pattern = "*", count = 1000) {
     return this.http<{
       keys: Array<{ key: string; key_type: string; size: number; ttl: number }>;
@@ -250,7 +220,7 @@ class MirorBackend {
     });
   }
   redisGetKey(connectionString: string, key: string) {
-    return this.http<{ key: string; type: string; value: any }>(
+    return this.http<{ key: string; type: string; value: unknown }>(
       "GET", `/database/redis/key?connection_string=${encodeURIComponent(connectionString)}&key=${encodeURIComponent(key)}`
     );
   }
@@ -270,7 +240,6 @@ class MirorBackend {
     });
   }
 
-  // Resource History (Feature 9)
   getResourceHistory(serviceId: string) {
     return this.http<{
       history: Array<{ timestamp: number; cpu: number; memory_mb: number }>;
@@ -278,18 +247,11 @@ class MirorBackend {
     }>("GET", `/services/${serviceId}/history`);
   }
 
-  // --- WebSocket ---
-
   connectWs() {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
-    if (typeof window === "undefined") return; // SSR guard
+    if (typeof window === "undefined") return;
 
-    // Compose the WS URL — connect to the gateway with XTransformPort
-    // The gateway routes /ws?XTransformPort=3001 → ws://localhost:3001/ws
-    const host = GATEWAY_ORIGIN
-      ? GATEWAY_ORIGIN.replace(/^http/, "ws")
-      : `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}`;
-    const url = `${host}/ws?XTransformPort=${BACKEND_PORT}`;
+    const url = wsUrl();
     try {
       this.ws = new WebSocket(url);
     } catch (e) {
@@ -333,7 +295,6 @@ class MirorBackend {
 
   onWsEvent(fn: WsListener) {
     this.wsListeners.add(fn);
-    // Auto-connect on first listener
     if (!this.ws) this.connectWs();
     return () => this.wsListeners.delete(fn);
   }
@@ -341,5 +302,4 @@ class MirorBackend {
   get wsIsConnected() { return this.wsConnected; }
 }
 
-// Singleton — the entire app talks to one backend
 export const backend = new MirorBackend();
