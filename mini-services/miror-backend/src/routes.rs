@@ -33,7 +33,7 @@ pub fn router(state: AppState) -> Router {
         // Projects
         .route("/api/projects", get(list_projects).post(create_project))
         .route("/api/projects/:id", get(get_project).put(update_project).delete(delete_project))
-        .route("/api/projects/:id/devpilot.json", get(export_devpilot_json).post(import_devpilot_json))
+        .route("/api/projects/:id/miror.json", get(export_miror_json).post(import_miror_json))
         .route("/api/projects/:id/docker", get(get_docker_info))
         .route("/api/projects/:id/env-profile", post(apply_env_profile))
         // Services
@@ -136,7 +136,7 @@ async fn delete_project(State(s): State<AppState>, Path(id): Path<String>) -> im
     }
 }
 
-async fn export_devpilot_json(State(s): State<AppState>, Path(id): Path<String>) -> impl IntoResponse {
+async fn export_miror_json(State(s): State<AppState>, Path(id): Path<String>) -> impl IntoResponse {
     let project = match s.store.get_project(&id).await {
         Ok(Some(p)) => p,
         _ => return (StatusCode::NOT_FOUND, "project not found").into_response(),
@@ -145,9 +145,9 @@ async fn export_devpilot_json(State(s): State<AppState>, Path(id): Path<String>)
         Ok(s) => s,
         Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     };
-    let config = services::services_to_devpilot_config(&project, &services);
+    let config = services::services_to_miror_config(&project, &services);
     // Also write it to disk
-    let _ = services::write_devpilot_json(&project.root_path, &config).await;
+    let _ = services::write_miror_json(&project.root_path, &config).await;
     Json(json!(config)).into_response()
 }
 
@@ -156,7 +156,7 @@ struct ImportPayload {
     overwrite: Option<bool>,
 }
 
-async fn import_devpilot_json(
+async fn import_miror_json(
     State(s): State<AppState>,
     Path(id): Path<String>,
     Query(_q): Query<ImportPayload>,
@@ -165,7 +165,7 @@ async fn import_devpilot_json(
         Ok(Some(p)) => p,
         _ => return (StatusCode::NOT_FOUND, "project not found").into_response(),
     };
-    match services::read_devpilot_json(&project.root_path).await {
+    match services::read_miror_json(&project.root_path).await {
         Ok(config) => {
             // Sync services from the file into the DB
             for svc_cfg in &config.project.services {
@@ -199,7 +199,7 @@ async fn import_devpilot_json(
             }
             Json(json!({"ok": true, "imported": config.project.services.len()})).into_response()
         }
-        Err(e) => (StatusCode::BAD_REQUEST, format!("no devpilot.json found or invalid: {}", e)).into_response(),
+        Err(e) => (StatusCode::BAD_REQUEST, format!("no miror.json found or invalid: {}", e)).into_response(),
     }
 }
 

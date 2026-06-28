@@ -2,8 +2,9 @@
 # Start the Miror Rust backend in a robust, detached way.
 
 set -e
-BACKEND_DIR="/home/z/my-project/mini-services/devpilot-backend"
-DATA_DIR="/home/z/my-project/.miror"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+BACKEND_DIR="$ROOT/mini-services/miror-backend"
+DATA_DIR="${MIROR_DATA_DIR:-$ROOT/.miror}"
 LOG_FILE="$DATA_DIR/backend.log"
 PID_FILE="$DATA_DIR/backend.pid"
 
@@ -20,10 +21,10 @@ fi
 
 cd "$BACKEND_DIR"
 
-DEVPILOT_PORT=3001 \
-DEVPILOT_DATA_DIR="$DATA_DIR" \
+MIROR_PORT=3001 \
+MIROR_DATA_DIR="$DATA_DIR" \
 RUST_LOG=info \
-setsid ./target/release/devpilot-backend > "$LOG_FILE" 2>&1 < /dev/null &
+setsid ./target/release/miror-backend > "$LOG_FILE" 2>&1 < /dev/null &
 
 NEW_PID=$!
 echo "$NEW_PID" > "$PID_FILE"

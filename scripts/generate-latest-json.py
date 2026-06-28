@@ -7,23 +7,23 @@ Usage:
 
 Expects a directory structure like:
     artifacts/
-      devpilot-macos-latest/
+      miror-macos-latest/
         bundle/
           macos/
-            DevPilot_1.0.0_aarch64.app.tar.gz
-            DevPilot_1.0.0_aarch64.app.tar.gz.sig
-            DevPilot_1.0.0_x64.app.tar.gz
-            DevPilot_1.0.0_x64.app.tar.gz.sig
-      devpilot-ubuntu-22.04/
+            Miror_1.0.0_aarch64.app.tar.gz
+            Miror_1.0.0_aarch64.app.tar.gz.sig
+            Miror_1.0.0_x64.app.tar.gz
+            Miror_1.0.0_x64.app.tar.gz.sig
+      miror-ubuntu-22.04/
         bundle/
           appimage/
-            DevPilot_1.0.0_amd64.AppImage.tar.gz
-            DevPilot_1.0.0_amd64.AppImage.tar.gz.sig
-      devpilot-windows-latest/
+            Miror_1.0.0_amd64.AppImage.tar.gz
+            Miror_1.0.0_amd64.AppImage.tar.gz.sig
+      miror-windows-latest/
         bundle/
           nsis/
-            DevPilot_1.0.0_x64-setup.nsis.zip
-            DevPilot_1.0.0_x64-setup.nsis.zip.sig
+            Miror_1.0.0_x64-setup.nsis.zip
+            Miror_1.0.0_x64-setup.nsis.zip.sig
 
 Reads the version from the first .tar.gz filename, infers the GitHub release URL,
 and prints a JSON manifest to stdout.
@@ -36,7 +36,7 @@ import sys
 from pathlib import Path
 
 
-GITHUB_REPO = os.environ.get("GITHUB_REPO", "yourusername/devpilot")
+GITHUB_REPO = os.environ.get("GITHUB_REPO", "yourusername/miror")
 RELEASE_BASE = f"https://github.com/{GITHUB_REPO}/releases/download"
 
 
@@ -69,7 +69,7 @@ def find_artifacts(root: Path):
 
 
 def extract_version(filename: str) -> str:
-    """Pull the version string (e.g. '1.0.0') from a filename like DevPilot_1.0.0_aarch64.app.tar.gz"""
+    """Pull the version string (e.g. '1.0.0') from a filename like Miror_1.0.0_aarch64.app.tar.gz"""
     m = re.search(r"(\d+\.\d+\.\d+)", filename)
     return m.group(1) if m else "0.0.0"
 
@@ -104,7 +104,7 @@ def main():
 
     manifest = {
         "version": version,
-        "notes": f"DevPilot {version}",
+        "notes": f"Miror {version}",
         "pub_date": __import__("datetime").datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "platforms": platforms,
     }

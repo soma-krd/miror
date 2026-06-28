@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    devpilot_tauri_lib::run()
+    miror_lib::run()
 }

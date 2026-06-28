@@ -5,7 +5,7 @@
 //   - WebSocket for real-time log streaming, status, telemetry
 //   - tokio::process::Command with kill_on_drop for actual process spawning
 //   - SQLite persistence (rusqlite)
-//   - Per-project devpilot.json config files
+//   - Per-project miror.json config files
 //   - Docker compose detection
 //   - .env file parsing / writing
 //   - Editor integration (VS Code, Cursor, file manager)
@@ -34,14 +34,14 @@ async fn main() -> Result<()> {
         .with_target(false)
         .init();
 
-    let port: u16 = std::env::var("DEVPILOT_PORT")
+    let port: u16 = std::env::var("MIROR_PORT")
         .ok()
         .and_then(|s| s.parse().ok())
+        .or_else(|| std::env::var("MIROR_PORT").ok().and_then(|s| s.parse().ok()))
         .unwrap_or(3001);
 
     // Data dir — persist SQLite DB here
-    let data_dir = std::env::var("MIR_DATA_DIR")
-        .or_else(|_| std::env::var("DEVPILOT_DATA_DIR"))
+    let data_dir = std::env::var("MIROR_DATA_DIR")
         .map(PathBuf::from)
         .unwrap_or_else(|_| {
             dirs_data_dir().unwrap_or_else(|| PathBuf::from("./.miror"))

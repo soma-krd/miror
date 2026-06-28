@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Use standalone in dev — supports dynamic API routes (git, AI diagnose).
   // For Tauri packaging, change to "export" and move API routes to Rust.
-  output: "standalone",
+  output: "export",
   images: { unoptimized: true },
   typescript: {
     ignoreBuildErrors: true,

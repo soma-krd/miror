@@ -1,12 +1,12 @@
-# DevPilot — Desktop App Build & Publish Guide
+# Miror — Desktop App Build & Publish Guide
 
-This guide walks you through turning DevPilot into a signed, distributable desktop app for **macOS**, **Windows**, and **Linux**, with system tray integration and native OS notifications, and publishing it so users can install it with one click.
+This guide walks you through turning Miror into a signed, distributable desktop app for **macOS**, **Windows**, and **Linux**, with system tray integration and native OS notifications, and publishing it so users can install it with one click.
 
 ---
 
 ## System Tray / Menu Bar Integration
 
-DevPilot includes a full system tray integration that works across all three platforms:
+Miror includes a full system tray integration that works across all three platforms:
 
 | Platform | Location | Behavior |
 |----------|----------|----------|
@@ -23,7 +23,7 @@ DevPilot includes a full system tray integration that works across all three pla
    - Hover reveals quick action buttons: Start / Stop / Restart
    - Click a service name → opens the main window focused on that service's logs
    - Click outside the popup → hides it
-2. **Right-click the tray icon** → native menu with "Open DevPilot" and "Quit DevPilot" (Cmd+Q)
+2. **Right-click the tray icon** → native menu with "Open Miror" and "Quit Miror" (Cmd+Q)
 3. **Bell icon in the popup header** → shows recent crash notifications
 4. **Close the main window** → hides to tray instead of quitting (like Slack/Discord)
 5. **Service crashes** → native OS notification fires automatically:
@@ -51,7 +51,7 @@ cargo tauri icon src-tauri/icons/app-icon-1024.png
 
 GNOME (default Ubuntu) removed the system tray by default. Users need one of:
 - **AppIndicator extension**: `sudo apt install gnome-shell-extension-appindicator && gnome-extensions enable appindicatorsupport@rgcjonas.gmail.com`
-- Or use KStatusNotifierItem/AppIndicator via the AppIndicator3 library (DevPilot's `.deb` package declares `libappindicator3-1` as a dependency)
+- Or use KStatusNotifierItem/AppIndicator via the AppIndicator3 library (Miror's `.deb` package declares `libappindicator3-1` as a dependency)
 
 KDE Plasma, XFCE, and Cinnamon have the tray built-in — no setup needed.
 
@@ -90,14 +90,14 @@ The `iconAsTemplate: true` setting in `tauri.conf.json` makes the tray icon adap
 
 ## 1. How the architecture works
 
-DevPilot is **two binaries** bundled into one installer:
+Miror is **two binaries** bundled into one installer:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  DevPilot.app / DevPilot.exe / DevPilot.AppImage        │
+│  Miror.app / Miror.exe / Miror.AppImage        │
 │                                                         │
 │  ┌──────────────────┐    ┌──────────────────────────┐   │
-│  │  Tauri runtime   │    │  devpilot-backend        │   │
+│  │  Tauri runtime   │    │  miror-backend        │   │
 │  │  (webview shell) │    │  (your Rust binary)      │   │
 │  │                  │    │  port 3001               │   │
 │  │  Loads:          │◄───┤  spawns child processes  │   │
@@ -111,7 +111,7 @@ DevPilot is **two binaries** bundled into one installer:
 
 On launch:
 1. Tauri opens a native window
-2. Tauri spawns `devpilot-backend` as a **sidecar process** (managed lifetime)
+2. Tauri spawns `miror-backend` as a **sidecar process** (managed lifetime)
 3. The WebView loads the bundled Next.js static files from `out/`
 4. The frontend talks to `http://localhost:3001` (the sidecar)
 5. The sidecar spawns real child processes (Node, Docker, etc.) via `tokio::process::Command`
@@ -138,7 +138,7 @@ brew install node bun
 cargo install tauri-cli --version "^2.0" --locked
 
 # Install frontend deps
-cd /path/to/devpilot
+cd /path/to/miror
 bun install
 ```
 
@@ -200,7 +200,7 @@ rustc -vV | grep host
 ### Build and rename the binary
 
 ```bash
-cd mini-services/devpilot-backend
+cd mini-services/miror-backend
 
 # Build for your current platform
 cargo build --release
@@ -212,11 +212,11 @@ mkdir -p ../src-tauri/binaries
 TARGET=$(rustc -vV | grep host | awk '{print $2}')
 
 # Copy + rename — the suffix MUST match the target triple exactly
-cp target/release/devpilot-backend \
-   ../src-tauri/binaries/devpilot-backend-$TARGET
+cp target/release/miror-backend \
+   ../src-tauri/binaries/miror-backend-$TARGET
 
 # On Windows, add .exe:
-# cp target/release/devpilot-backend.exe ../src-tauri/binaries/devpilot-backend-x86_64-pc-windows-msvc.exe
+# cp target/release/miror-backend.exe ../src-tauri/binaries/miror-backend-x86_64-pc-windows-msvc.exe
 ```
 
 ### For multi-platform builds
@@ -293,9 +293,9 @@ Here's the complete production-ready config:
 ```json
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "DevPilot",
+  "productName": "Miror",
   "version": "1.0.0",
-  "identifier": "com.devpilot.app",
+  "identifier": "com.miror.app",
   "build": {
     "beforeDevCommand": "bun run dev",
     "beforeBuildCommand": "bun run build",
@@ -305,7 +305,7 @@ Here's the complete production-ready config:
   "app": {
     "windows": [
       {
-        "title": "DevPilot — Local Dev Workspace Manager",
+        "title": "Miror — Local Dev Workspace Manager",
         "width": 1440,
         "height": 900,
         "minWidth": 1024,
@@ -330,15 +330,15 @@ Here's the complete production-ready config:
       "icons/icon.ico"
     ],
     "resources": [
-      "binaries/devpilot-backend-*"
+      "binaries/miror-backend-*"
     ],
     "externalBin": [
-      "binaries/devpilot-backend"
+      "binaries/miror-backend"
     ],
     "publisher": "Your Name",
     "category": "DeveloperTool",
     "shortDescription": "Control tower for local dev environments",
-    "longDescription": "DevPilot manages multiple projects and their services from a single unified panel.",
+    "longDescription": "Miror manages multiple projects and their services from a single unified panel.",
     "copyright": "© 2026 Your Name"
   },
   "plugins": {
@@ -346,8 +346,8 @@ Here's the complete production-ready config:
       "sidecar": true,
       "scope": [
         {
-          "name": "binaries/devpilot-backend",
-          "cmd": "devpilot-backend",
+          "name": "binaries/miror-backend",
+          "cmd": "miror-backend",
           "args": true
         }
       ]
@@ -355,7 +355,7 @@ Here's the complete production-ready config:
     "updater": {
       "active": true,
       "endpoints": [
-        "https://github.com/yourusername/devpilot/releases/latest/download/latest.json"
+        "https://github.com/yourusername/miror/releases/latest/download/latest.json"
       ],
       "pubkey": "YOUR_PUBLIC_KEY_HERE"
     }
@@ -384,7 +384,7 @@ This will:
 1. Run `bun run dev` (Next.js dev server)
 2. Open a native window pointing at `http://localhost:3000`
 3. Hot-reload on file changes
-4. Spawn the devpilot-backend sidecar
+4. Spawn the miror-backend sidecar
 
 ### Production build
 
@@ -465,8 +465,8 @@ cargo tauri build
 Linux has no equivalent of Gatekeeper/SmartScreen. AppImage, `.deb`, and `.rpm` work out of the box. Optionally sign your AppImage with GPG for verification:
 
 ```bash
-gpg --armor --detach-sign DevPilot_1.0.0_amd64.AppImage
-# Produces DevPilot_1.0.0_amd64.AppImage.asc
+gpg --armor --detach-sign Miror_1.0.0_amd64.AppImage
+# Produces Miror_1.0.0_amd64.AppImage.asc
 ```
 
 ---
@@ -479,8 +479,8 @@ Tauri's updater checks a JSON endpoint for new versions and patches the app in-p
 
 ```bash
 cargo install tauri-cli --version "^2.0" --locked
-cargo tauri signer generate -w ~/.tauri/devpilot.key
-# Saves private key to ~/.tauri/devpilot.key
+cargo tauri signer generate -w ~/.tauri/miror.key
+# Saves private key to ~/.tauri/miror.key
 # Prints public key — put this in tauri.conf.json → plugins.updater.pubkey
 ```
 
@@ -492,7 +492,7 @@ The `plugins.updater` block in tauri.conf.json (already shown in Step 4) tells t
 
 ```json
 "endpoints": [
-  "https://github.com/yourusername/devpilot/releases/latest/download/latest.json"
+  "https://github.com/yourusername/miror/releases/latest/download/latest.json"
 ]
 ```
 
@@ -501,11 +501,11 @@ The `plugins.updater` block in tauri.conf.json (already shown in Step 4) tells t
 When you build with the private key set, Tauri generates a `.sig` file alongside each installer:
 
 ```bash
-export TAURI_PRIVATE_KEY=$(cat ~/.tauri/devpilot.key)
+export TAURI_PRIVATE_KEY=$(cat ~/.tauri/miror.key)
 cargo tauri build
 # Produces:
-#   bundle/macos/DevPilot.app.tar.gz
-#   bundle/macos/DevPilot.app.tar.gz.sig  ← signature
+#   bundle/macos/Miror.app.tar.gz
+#   bundle/macos/Miror.app.tar.gz.sig  ← signature
 ```
 
 ### Publish the `latest.json` manifest
@@ -519,20 +519,20 @@ Create a `latest.json` file and upload it to your release:
   "pub_date": "2026-06-27T10:00:00Z",
   "platforms": {
     "darwin-x86_64": {
-      "signature": "contents of DevPilot.app.tar.gz.sig",
-      "url": "https://github.com/yourusername/devpilot/releases/download/v1.0.1/DevPilot_1.0.1_x64.app.tar.gz"
+      "signature": "contents of Miror.app.tar.gz.sig",
+      "url": "https://github.com/yourusername/miror/releases/download/v1.0.1/Miror_1.0.1_x64.app.tar.gz"
     },
     "darwin-aarch64": {
       "signature": "...",
-      "url": "https://github.com/yourusername/devpilot/releases/download/v1.0.1/DevPilot_1.0.1_aarch64.app.tar.gz"
+      "url": "https://github.com/yourusername/miror/releases/download/v1.0.1/Miror_1.0.1_aarch64.app.tar.gz"
     },
     "linux-x86_64": {
       "signature": "...",
-      "url": "https://github.com/yourusername/devpilot/releases/download/v1.0.1/DevPilot_1.0.1_amd64.AppImage.tar.gz"
+      "url": "https://github.com/yourusername/miror/releases/download/v1.0.1/Miror_1.0.1_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
       "signature": "...",
-      "url": "https://github.com/yourusername/devpilot/releases/download/v1.0.1/DevPilot_1.0.1_x64-setup.nsis.zip"
+      "url": "https://github.com/yourusername/miror/releases/download/v1.0.1/Miror_1.0.1_x64-setup.nsis.zip"
     }
   }
 }
@@ -555,16 +555,16 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-2. **Create a release on GitHub:** https://github.com/yourusername/devpilot/releases/new
+2. **Create a release on GitHub:** https://github.com/yourusername/miror/releases/new
 
 3. **Upload these artifacts** (from all three platforms):
-   - `DevPilot_1.0.0_x64.dmg` (macOS Intel)
-   - `DevPilot_1.0.0_aarch64.dmg` (macOS Apple Silicon)
-   - `DevPilot_1.0.0_x64-setup.exe` (Windows)
-   - `DevPilot_1.0.0_x64-setup.nsis.zip` + `.sig` (Windows updater)
-   - `DevPilot_1.0.0_amd64.AppImage` (Linux)
-   - `DevPilot_1.0.0_amd64.AppImage.tar.gz` + `.sig` (Linux updater)
-   - `DevPilot_1.0.0_x64.app.tar.gz` + `.sig` (macOS updater)
+   - `Miror_1.0.0_x64.dmg` (macOS Intel)
+   - `Miror_1.0.0_aarch64.dmg` (macOS Apple Silicon)
+   - `Miror_1.0.0_x64-setup.exe` (Windows)
+   - `Miror_1.0.0_x64-setup.nsis.zip` + `.sig` (Windows updater)
+   - `Miror_1.0.0_amd64.AppImage` (Linux)
+   - `Miror_1.0.0_amd64.AppImage.tar.gz` + `.sig` (Linux updater)
+   - `Miror_1.0.0_x64.app.tar.gz` + `.sig` (macOS updater)
    - `latest.json` (updater manifest)
 
 4. **Publish the release.**
@@ -574,14 +574,14 @@ git push origin v1.0.0
 Point users to:
 
 ```
-https://github.com/yourusername/devpilot/releases/latest
+https://github.com/yourusername/miror/releases/latest
 ```
 
 GitHub auto-redirects this to the newest release. Users pick their platform and download.
 
 ### Optional: landing page
 
-Use GitHub Pages (free) to host a simple landing page at `https://yourusername.github.io/devpilot/` with download buttons that link to the release artifacts.
+Use GitHub Pages (free) to host a simple landing page at `https://yourusername.github.io/miror/` with download buttons that link to the release artifacts.
 
 ---
 
@@ -592,9 +592,9 @@ Use GitHub Pages (free) to host a simple landing page at `https://yourusername.g
 Tauri supports MAS publishing. Requirements:
 - Apple Developer Program membership
 - App Store certificates (different from Developer ID)
-- App must sandbox — DevPilot may need entitlements for `process spawning`, which the MAS rejects. **Likely rejection reason:** MAS apps cannot spawn arbitrary child processes.
+- App must sandbox — Miror may need entitlements for `process spawning`, which the MAS rejects. **Likely rejection reason:** MAS apps cannot spawn arbitrary child processes.
 
-DevPilot probably **can't** go on the MAS because of its core feature (spawning dev servers). Stick with direct distribution via `.dmg` + auto-update.
+Miror probably **can't** go on the MAS because of its core feature (spawning dev servers). Stick with direct distribution via `.dmg` + auto-update.
 
 ### Microsoft Store
 
@@ -608,7 +608,7 @@ cargo tauri build
 
 Then upload the `.msix` to https://partner.microsoft.com/dashboard. The store takes ~24-48 hours for review. Cost: one-time $19 developer account.
 
-DevPilot can go on the Microsoft Store — its process-spawning is allowed.
+Miror can go on the Microsoft Store — its process-spawning is allowed.
 
 ### Snap Store (Linux)
 
@@ -621,11 +621,11 @@ cargo tauri build --target snap
 
 # Push to Snap Store
 snapcraft login
-snapcraft upload devpilot_1.0.0_amd64.snap
-snapcraft release devpilot 1 stable
+snapcraft upload miror_1.0.0_amd64.snap
+snapcraft release miror 1 stable
 ```
 
-Free for open-source apps. Reaches Ubuntu users directly via `snap install devpilot`.
+Free for open-source apps. Reaches Ubuntu users directly via `snap install miror`.
 
 ### Flathub (Linux)
 
@@ -688,13 +688,13 @@ jobs:
         run: bun install
 
       - name: Build Rust backend sidecar
-        working-directory: mini-services/devpilot-backend
+        working-directory: mini-services/miror-backend
         run: |
           cargo build --release
           mkdir -p ../../src-tauri/binaries
           TARGET=$(rustc -vV | grep host | awk '{print $2}')
-          cp target/release/devpilot-backend \
-             ../../src-tauri/binaries/devpilot-backend-$TARGET${{ matrix.platform == 'windows-latest' && '.exe' || '' }}
+          cp target/release/miror-backend \
+             ../../src-tauri/binaries/miror-backend-$TARGET${{ matrix.platform == 'windows-latest' && '.exe' || '' }}
 
       - name: Sign macOS build
         if: matrix.platform == 'macos-latest'
@@ -714,7 +714,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: devpilot-${{ matrix.platform }}
+          name: miror-${{ matrix.platform }}
           path: |
             src-tauri/target/release/bundle/**/*.dmg
             src-tauri/target/release/bundle/**/*.app
@@ -762,7 +762,7 @@ Now every time you push a `v*` tag, GitHub builds installers for all 4 platforms
 
 ### Required GitHub secrets
 
-Add these at https://github.com/yourusername/devpilot/settings/secrets/actions:
+Add these at https://github.com/yourusername/miror/settings/secrets/actions:
 
 | Secret | Purpose |
 |--------|---------|
@@ -770,7 +770,7 @@ Add these at https://github.com/yourusername/devpilot/settings/secrets/actions:
 | `APPLE_ID` | your Apple ID email |
 | `APPLE_PASSWORD` | app-specific password from appleid.apple.com |
 | `APPLE_TEAM_ID` | your Apple team ID |
-| `TAURI_PRIVATE_KEY` | contents of `~/.tauri/devpilot.key` |
+| `TAURI_PRIVATE_KEY` | contents of `~/.tauri/miror.key` |
 
 ---
 
@@ -778,15 +778,15 @@ Add these at https://github.com/yourusername/devpilot/settings/secrets/actions:
 
 ### "Sidecar binary not found"
 
-The binary name must match `devpilot-backend-<target-triple>` **exactly**. Verify:
+The binary name must match `miror-backend-<target-triple>` **exactly**. Verify:
 
 ```bash
 rustc -vV | grep host
 ls src-tauri/binaries/
-# Must contain: devpilot-backend-x86_64-unknown-linux-gnu
+# Must contain: miror-backend-x86_64-unknown-linux-gnu
 ```
 
-On Windows, add `.exe`: `devpilot-backend-x86_64-pc-windows-msvc.exe`.
+On Windows, add `.exe`: `miror-backend-x86_64-pc-windows-msvc.exe`.
 
 ### Next.js "out/" not found
 
@@ -804,7 +804,7 @@ ls src-tauri/../out/index.html  # should exist
 
 macOS Gatekeeper quarantines unsigned sidecar binaries. Either:
 1. Sign the whole app bundle (Step 6), OR
-2. Remove the quarantine attribute manually for testing: `xattr -cr /Applications/DevPilot.app`
+2. Remove the quarantine attribute manually for testing: `xattr -cr /Applications/Miror.app`
 
 ### "EADDRINUSE: port 3001 already in use"
 
@@ -819,7 +819,7 @@ The signature in `latest.json` must exactly match the `.sig` file contents. Don'
 Common reasons:
 - Hardened runtime not enabled (Tauri does this automatically)
 - Sidecar binary not signed (Tauri handles this if env vars are set)
-- App uses private APIs (DevPilot shouldn't)
+- App uses private APIs (Miror shouldn't)
 
 Run the notarization log to see details:
 
@@ -835,7 +835,7 @@ xcrun notarytool log <submission-id> --apple-id "you@email.com" --password "app-
 For a fast path from code to published installer:
 
 - [ ] Install prerequisites (Rust, Node, Bun, Tauri CLI)
-- [ ] Build backend: `cd mini-services/devpilot-backend && cargo build --release`
+- [ ] Build backend: `cd mini-services/miror-backend && cargo build --release`
 - [ ] Copy binary to sidecar location with target-triple suffix
 - [ ] Verify `next.config.ts` has `output: "export"`
 - [ ] Generate icons: `cargo tauri icon <source-1024.png>`
@@ -848,6 +848,6 @@ For a fast path from code to published installer:
 - [ ] Add secrets to GitHub repo
 - [ ] Tag `v1.0.0` and push → CI builds + signs + uploads
 - [ ] Review draft release → publish
-- [ ] Share `https://github.com/yourusername/devpilot/releases/latest`
+- [ ] Share `https://github.com/yourusername/miror/releases/latest`
 
 You now have a published desktop app that auto-updates itself. 🎉

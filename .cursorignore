@@ -8,7 +8,7 @@ dist/
 build/
 target/
 src-tauri/target/
-mini-services/devpilot-backend/target/
+mini-services/miror-backend/target/
 src-tauri/bundle/
 src-tauri/gen/
 src-tauri/WixTools/

@@ -1,5 +1,5 @@
 // Service helpers — Docker compose detection, .env parsing, editor launching,
-// devpilot.json read/write. These implement the remaining PRD features that
+// miror.json read/write. These implement the remaining PRD features that
 // don't fit into the core process_manager.
 
 use std::collections::HashMap;
@@ -169,34 +169,34 @@ pub async fn write_env_file(path: &str, map: &HashMap<String, String>) -> Result
     Ok(())
 }
 
-// --- devpilot.json read/write ----------------------------------------------
+// --- miror.json read/write ----------------------------------------------
 
-/// Read a devpilot.json from a project root
-pub async fn read_devpilot_json(project_root: &str) -> Result<DevPilotConfig> {
-    let path = Path::new(project_root).join("devpilot.json");
+/// Read a miror.json from a project root
+pub async fn read_miror_json(project_root: &str) -> Result<MirorConfig> {
+    let path = Path::new(project_root).join("miror.json");
     let content = tokio::fs::read_to_string(&path).await
         .map_err(|e| anyhow!("failed to read {}: {}", path.display(), e))?;
-    let config: DevPilotConfig = serde_json::from_str(&content)
+    let config: MirorConfig = serde_json::from_str(&content)
         .map_err(|e| anyhow!("failed to parse {}: {}", path.display(), e))?;
     Ok(config)
 }
 
-/// Write a devpilot.json to a project root
-pub async fn write_devpilot_json(project_root: &str, config: &DevPilotConfig) -> Result<()> {
-    let path = Path::new(project_root).join("devpilot.json");
+/// Write a miror.json to a project root
+pub async fn write_miror_json(project_root: &str, config: &MirorConfig) -> Result<()> {
+    let path = Path::new(project_root).join("miror.json");
     let content = serde_json::to_string_pretty(config)?;
     tokio::fs::write(&path, content).await?;
     Ok(())
 }
 
-/// Convert a list of services (from DB) into a devpilot.json config
-pub fn services_to_devpilot_config(project: &Project, services: &[Service]) -> DevPilotConfig {
-    DevPilotConfig {
+/// Convert a list of services (from DB) into a miror.json config
+pub fn services_to_miror_config(project: &Project, services: &[Service]) -> MirorConfig {
+    MirorConfig {
         version: "1.0".to_string(),
-        project: DevPilotConfigProject {
+        project: MirorConfigProject {
             name: project.name.clone(),
             root_path: project.root_path.clone(),
-            services: services.iter().map(|s| DevPilotConfigService {
+            services: services.iter().map(|s| MirorConfigService {
                 id: s.id.clone(),
                 name: s.name.clone(),
                 cwd: s.cwd.clone(),

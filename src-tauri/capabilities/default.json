@@ -1,0 +1,22 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default capabilities for Miror",
+  "windows": ["main", "tray-popup"],
+  "permissions": [
+    "core:default",
+    "core:tray:default",
+    "core:window:default",
+    "notification:default",
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "miror-backend",
+          "sidecar": true,
+          "args": true
+        }
+      ]
+    }
+  ]
+}

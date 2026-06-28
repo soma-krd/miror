@@ -1,4 +1,4 @@
-// DevPilot data models — shared contract between Rust backend and TypeScript frontend.
+// Miror data models — shared contract between Rust backend and TypeScript frontend.
 // Mirrors `src/lib/types.ts` in the Next.js app 1:1.
 
 use serde::{Deserialize, Serialize};
@@ -167,22 +167,22 @@ impl Default for EnvironmentProfile {
     fn default() -> Self { EnvironmentProfile::Development }
 }
 
-// devpilot.json structure — matches the PRD example
+// miror.json structure — matches the PRD example
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DevPilotConfig {
+pub struct MirorConfig {
     pub version: String,
-    pub project: DevPilotConfigProject,
+    pub project: MirorConfigProject,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DevPilotConfigProject {
+pub struct MirorConfigProject {
     pub name: String,
     pub root_path: String,
-    pub services: Vec<DevPilotConfigService>,
+    pub services: Vec<MirorConfigService>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DevPilotConfigService {
+pub struct MirorConfigService {
     pub id: String,
     pub name: String,
     pub cwd: String,

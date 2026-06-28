@@ -1,10 +1,10 @@
-# DevPilot — Local Dev Workspace Manager
+# Miror — Local Dev Workspace Manager
 
 A cross-platform desktop control tower for managing multiple projects and their services (frontend, backend, workers, databases, docker stacks) from a single unified panel.
 
 ## Architecture
 
-DevPilot is built as **two cooperating processes**:
+Miror is built as **two cooperating processes**:
 
 ```
 ┌──────────────────────┐         HTTP/WS          ┌─────────────────────────┐
@@ -26,7 +26,7 @@ frontend is statically exported, then both are wrapped in a native window.
 
 ### In the sandbox
 
-- The Rust backend runs on port **3001** (`mini-services/devpilot-backend/`)
+- The Rust backend runs on port **3001** (`mini-services/Miror-backend/`)
 - The Next.js dev server runs on port **3000**
 - The Caddy gateway on port **81** routes between them via `?XTransformPort=3001`
 - The browser loads `http://localhost:3000` and the frontend calls the gateway at `:81`
@@ -43,7 +43,7 @@ frontend is statically exported, then both are wrapped in a native window.
 ```
 my-project/
 ├── mini-services/
-│   └── devpilot-backend/          ← Rust backend (axum + tokio + rusqlite)
+│   └── Miror-backend/          ← Rust backend (axum + tokio + rusqlite)
 │       ├── Cargo.toml
 │       └── src/
 │           ├── main.rs            ← entry point
@@ -51,21 +51,21 @@ my-project/
 │           ├── store.rs           ← SQLite persistence
 │           ├── process_manager.rs ← real tokio::process::Command logic
 │           ├── event_bus.rs       ← broadcast channel for WS events
-│           ├── services.rs        ← Docker compose, .env, editor, devpilot.json
+│           ├── services.rs        ← Docker compose, .env, editor, Miror.json
 │           └── routes.rs          ← HTTP + WebSocket routes
 │
 ├── src/                            ← Next.js frontend
 │   ├── app/
-│   │   ├── page.tsx               ← DevPilot app entry
+│   │   ├── page.tsx               ← Miror app entry
 │   │   ├── layout.tsx
 │   │   └── globals.css            ← dark control-tower theme
 │   ├── components/
-│   │   └── devpilot/              ← 14 UI components
+│   │   └── Miror/              ← 14 UI components
 │   ├── lib/
 │   │   ├── types.ts               ← shared types (mirror of models.rs)
 │   │   └── backend-client.ts      ← HTTP + WebSocket client
 │   └── store/
-│       └── devpilot-store.ts      ← Zustand store
+│       └── Miror-store.ts      ← Zustand store
 │
 ├── src-tauri/                     ← Tauri desktop wrapper (for local packaging)
 │   ├── Cargo.toml
@@ -88,7 +88,7 @@ my-project/
 1. **Build the Rust backend** (first time only — takes ~3-5 minutes):
    ```bash
    . $HOME/.cargo/env
-   cd mini-services/devpilot-backend
+   cd mini-services/Miror-backend
    cargo build --release
    ```
 
@@ -103,7 +103,7 @@ my-project/
 
 ## Building as a Desktop App (locally)
 
-DevPilot uses Tauri v2 for desktop packaging. On your local machine:
+Miror uses Tauri v2 for desktop packaging. On your local machine:
 
 ### Prerequisites
 
@@ -117,16 +117,16 @@ DevPilot uses Tauri v2 for desktop packaging. On your local machine:
 1. **Clone and install**:
    ```bash
    git clone <your-repo>
-   cd devpilot
+   cd Miror
    bun install
    ```
 
 2. **Build the Rust backend as a sidecar**:
    ```bash
-   cd mini-services/devpilot-backend
+   cd mini-services/Miror-backend
    cargo build --release
    # Copy the binary to where Tauri expects sidecars
-   cp target/release/devpilot-backend ../../src-tauri/binaries/devpilot-backend-x86_64-unknown-linux-gnu
+   cp target/release/Miror-backend ../../src-tauri/binaries/Miror-backend-x86_64-unknown-linux-gnu
    # (rename to match your target triple — see `rustc -vV` for HOST triple)
    ```
 
@@ -172,7 +172,7 @@ This will:
 - ✅ **Virtualized log viewer** — @tanstack/react-virtual, 22px rows, 4000-line cap
 - ✅ **Filter by stdout/stderr/system** + full-text search
 - ✅ **Docker Compose detection** — `docker compose config --services`
-- ✅ **devpilot.json read/write** — sync config with project root
+- ✅ **Miror.json read/write** — sync config with project root
 - ✅ **.env file parsing/writing** — handles `export`, comments, quotes
 - ✅ **Environment profiles** — swap `.env` from `.env.testing` / `.env.staging`
 - ✅ **Editor integration** — VS Code, Cursor, file manager (real shell commands)
@@ -200,8 +200,8 @@ This will:
 | GET    | `/api/projects/:id`               | Get a project                      |
 | PUT    | `/api/projects/:id`               | Update a project                   |
 | DELETE | `/api/projects/:id`               | Delete a project + its services    |
-| GET    | `/api/projects/:id/devpilot.json` | Export config to devpilot.json     |
-| POST   | `/api/projects/:id/devpilot.json` | Import config from devpilot.json   |
+| GET    | `/api/projects/:id/Miror.json` | Export config to Miror.json     |
+| POST   | `/api/projects/:id/Miror.json` | Import config from Miror.json   |
 | GET    | `/api/projects/:id/docker`        | Detect docker-compose + services   |
 | POST   | `/api/projects/:id/env-profile`   | Swap .env from profile             |
 | POST   | `/api/projects/:id/start-all`     | Start all autoStart services       |

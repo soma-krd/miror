@@ -5,7 +5,7 @@
   "identifier": "com.miror.app",
   "build": {
     "beforeDevCommand": "bun run dev",
-    "beforeBuildCommand": "bun run build",
+    "beforeBuildCommand": "bun run build:desktop",
     "devUrl": "http://localhost:3000",
     "frontendDist": "../out"
   },
@@ -51,10 +51,10 @@
       "icons/app-icon-1024.png"
     ],
     "resources": [
-      "binaries/devpilot-backend-*"
+      "binaries/miror-backend-*"
     ],
     "externalBin": [
-      "binaries/devpilot-backend"
+      "binaries/miror-backend"
     ],
     "publisher": "Miror",
     "category": "DeveloperTool",
@@ -69,21 +69,6 @@
       "deb": {
         "depends": ["libappindicator3-1", "libnotify4"]
       }
-    }
-  },
-  "plugins": {
-    "shell": {
-      "sidecar": true,
-      "scope": [
-        {
-          "name": "binaries/devpilot-backend",
-          "cmd": "devpilot-backend",
-          "args": true
-        }
-      ]
-    },
-    "notification": {
-      "all": true
     }
   }
 }

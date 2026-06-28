@@ -14,7 +14,7 @@ build/
 # Rust / Tauri
 target/
 src-tauri/target/
-mini-services/devpilot-backend/target/
+mini-services/miror-backend/target/
 src-tauri/WixTools/
 src-tauri/gen/
 

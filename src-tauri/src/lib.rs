@@ -1,4 +1,4 @@
-// DevPilot Tauri main entry point.
+// Miror Tauri main entry point.
 //
 // This file implements:
 //   1. Sidecar backend spawning (port 3001)
@@ -8,24 +8,23 @@
 //   5. Native OS notifications for crash events (received from backend WS
 //      via a Tauri command invoked from the frontend)
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 use tauri::{
-    AppHandle, Manager, WebviewWindow, WebviewWindowBuilder, WindowEvent,
-    Emitter, Image,
-    menu::{Menu, MenuItem, PredefinedMenuItem, Submenu, MenuItemBuilder},
+    image::Image,
+    menu::{Menu, MenuItemBuilder, PredefinedMenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent, TrayIconId},
-    webview::WebviewUrl,
+    AppHandle, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder, WindowEvent,
 };
 use tauri_plugin_notification::NotificationExt;
-use tauri_plugin_shell::{process::CommandEvent, ShellExt};
+use tauri_plugin_shell::process::CommandEvent;
 
 // App state — holds the last known cursor position for tray popup placement
 struct AppState {
     last_cursor_pos: Mutex<(i32, i32)>,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 struct NotificationPayload {
     title: String,
     body: String,
@@ -245,10 +244,10 @@ pub fn run() {
             #[cfg(desktop)]
             {
                 use tauri_plugin_shell::ShellExt;
-                let sidecar = app.shell().sidecar("devpilot-backend")
-                    .expect("failed to find devpilot-backend sidecar");
+                let sidecar = app.shell().sidecar("miror-backend")
+                    .expect("failed to find miror-backend sidecar");
                 let (mut rx, _child) = sidecar.spawn()
-                    .expect("failed to spawn devpilot-backend sidecar");
+                    .expect("failed to spawn miror-backend sidecar");
 
                 tauri::async_runtime::spawn(async move {
                     while let Some(event) = rx.recv().await {
@@ -284,5 +283,5 @@ pub fn run() {
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("error while running DevPilot");
+        .expect("error while running Miror");
 }

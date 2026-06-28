@@ -1,11 +1,11 @@
 [package]
-name = "devpilot-backend"
+name = "miror-backend"
 version = "1.0.0"
 edition = "2021"
-description = "DevPilot local process management backend — real tokio::process::Command + WebSocket log streaming"
+description = "Miror local process management backend — real tokio::process::Command + WebSocket log streaming"
 
 [[bin]]
-name = "devpilot-backend"
+name = "miror-backend"
 path = "src/main.rs"
 
 [dependencies]
@@ -37,7 +37,7 @@ futures-util = "0.3"
 tokio-stream = { version = "0.1", features = ["sync"] }
 hyper = { version = "1", features = ["server", "http1"] }
 hyper-util = { version = "0.1", features = ["tokio"] }
-# File watching for devpilot.json
+# File watching for miror.json
 notify = "6"
 # Hashing for env file fingerprints
 sha2 = "0.10"

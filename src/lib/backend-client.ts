@@ -23,7 +23,7 @@ const GATEWAY_ORIGIN =
     ? `${window.location.protocol}//${window.location.hostname}:81`
     : "";
 
-// WebSocket event types — mirror mini-services/devpilot-backend/src/models.rs
+// WebSocket event types — mirror mini-services/miror-backend/src/models.rs
 export type WsEvent =
   | { type: "log_batch"; service_id: string; logs: import("./types").LogEntry[] }
   | { type: "status_change"; service_id: string; status: import("./types").ServiceStatus; pid: number | null }
