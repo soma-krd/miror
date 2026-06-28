@@ -1,0 +1,85 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Mir",
+  "version": "1.0.0",
+  "identifier": "com.mir.app",
+  "build": {
+    "beforeDevCommand": "bun run dev",
+    "beforeBuildCommand": "bun run build",
+    "devUrl": "http://localhost:3000",
+    "frontendDist": "../out"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Mir — Command Module for Local Dev",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": null
+    },
+    "trayIcon": {
+      "id": "main",
+      "iconPath": "icons/tray-icon-22.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false,
+      "tooltip": "Mir — click to manage services"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/icon.png",
+      "icons/icon.ico",
+      "icons/app-icon-128.png",
+      "icons/app-icon-256.png",
+      "icons/app-icon-512.png",
+      "icons/app-icon-1024.png"
+    ],
+    "resources": [
+      "binaries/devpilot-backend-*"
+    ],
+    "externalBin": [
+      "binaries/devpilot-backend"
+    ],
+    "publisher": "Mir",
+    "category": "DeveloperTool",
+    "shortDescription": "Command module for local dev environments",
+    "longDescription": "Mir is a cross-platform desktop control tower for managing multiple projects and their services from a single unified panel with system tray integration.",
+    "copyright": "© 2026 Mir",
+    "macOS": {
+      "frameworks": ["AppKit"],
+      "minimumSystemVersion": "10.15"
+    },
+    "linux": {
+      "deb": {
+        "depends": ["libappindicator3-1", "libnotify4"]
+      }
+    }
+  },
+  "plugins": {
+    "shell": {
+      "sidecar": true,
+      "scope": [
+        {
+          "name": "binaries/devpilot-backend",
+          "cmd": "devpilot-backend",
+          "args": true
+        }
+      ]
+    },
+    "notification": {
+      "all": true
+    }
+  }
+}

@@ -1,0 +1,52 @@
+# Dependencies (large, low signal for AI)
+node_modules/
+
+# Build artifacts
+.next/
+out/
+dist/
+build/
+target/
+src-tauri/target/
+mini-services/devpilot-backend/target/
+src-tauri/bundle/
+src-tauri/gen/
+src-tauri/WixTools/
+
+# Lockfiles (large, rarely edited by hand)
+bun.lock
+bun.lockb
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+Cargo.lock
+**/Cargo.lock
+
+# Generated / compiled
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+*.log
+dev.log
+server.log
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Caches
+.turbo/
+.cache/
+.eslintcache
+.parcel-cache/
+coverage/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Secrets (never index)
+.env
+.env.*

@@ -1,0 +1,32 @@
+<!-- Mir — Sidebar logo (compact symbol + wordmark, for the app sidebar) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 32" fill="none">
+  <!-- Symbol (left, 32x32) -->
+  <g transform="translate(0, 0)">
+    <!-- Hexagon -->
+    <polygon
+      points="27,16 21,26.08 9,26.08 3,16 9,5.92 21,5.92"
+      fill="#10B981"
+      fill-opacity="0.15"
+      stroke="#10B981"
+      stroke-width="2"
+      stroke-linejoin="round"
+    />
+    <!-- Chevron -->
+    <polygon
+      points="11,11 14,11 18,16 14,21 11,21 15,16"
+      fill="#F1F5F9"
+    />
+    <!-- Status dot -->
+    <circle cx="21" cy="9" r="1.5" fill="#FBBF24"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text
+    x="40" y="22"
+    font-family="'Geist Sans', 'Inter', system-ui, sans-serif"
+    font-size="18"
+    font-weight="700"
+    fill="#F1F5F9"
+    letter-spacing="-0.5"
+  >Mir</text>
+</svg>

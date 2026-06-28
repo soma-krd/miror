@@ -1,0 +1,48 @@
+[package]
+name = "devpilot-backend"
+version = "1.0.0"
+edition = "2021"
+description = "DevPilot local process management backend — real tokio::process::Command + WebSocket log streaming"
+
+[[bin]]
+name = "devpilot-backend"
+path = "src/main.rs"
+
+[dependencies]
+# Async runtime + process spawning
+tokio = { version = "1", features = ["full"] }
+# HTTP + WebSocket server
+axum = { version = "0.7", features = ["ws", "macros"] }
+# Hyper tower services for axum
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+tokio-util = "0.7"
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# IDs
+uuid = { version = "1", features = ["v4", "serde"] }
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+# SQLite
+rusqlite = { version = "0.32", features = ["bundled"] }
+# Error handling
+anyhow = "1"
+thiserror = "1"
+# Async utilities
+futures-util = "0.3"
+tokio-stream = { version = "0.1", features = ["sync"] }
+hyper = { version = "1", features = ["server", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio"] }
+# File watching for devpilot.json
+notify = "6"
+# Hashing for env file fingerprints
+sha2 = "0.10"
+
+[profile.release]
+opt-level = 2
+lto = "thin"
+codegen-units = 1

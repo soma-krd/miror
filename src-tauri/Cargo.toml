@@ -1,0 +1,25 @@
+[package]
+name = "devpilot-tauri"
+version = "1.0.0"
+description = "DevPilot desktop app — Tauri wrapper around the Rust backend + Next.js frontend"
+edition = "2021"
+rust-version = "1.70"
+
+[lib]
+name = "devpilot_tauri_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-shell = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-position = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+log = "0.4"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]

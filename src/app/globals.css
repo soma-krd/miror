@@ -1,0 +1,303 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Apple-style status colors */
+  --color-status-running: var(--status-running);
+  --color-status-starting: var(--status-starting);
+  --color-status-error: var(--status-error);
+  --color-status-idle: var(--status-idle);
+  --color-status-stopped: var(--status-stopped);
+}
+
+/*
+ * Mir — Apple-inspired design system
+ *
+ * Design principles:
+ *   1. Clarity — content is the interface. Chrome recedes.
+ *   2. Deference — the UI serves the content, not the other way around.
+ *   3. Depth — layering via translucency and subtle shadows, not heavy borders.
+ *
+ * Color: Apple's system grays (warm-neutral, not slate-blue), SF Blue accent,
+ *   semantic systemGreen/systemOrange/systemRed (muted, not neon).
+ * Typography: -apple-system stack (SF Pro Display + Text), SF Mono for code.
+ * Materials: translucent sidebar (vibrancy), frosted popovers, no flat fills.
+ * Corners: 10px for cards, 8px for inputs, 6px for chips.
+ */
+
+:root {
+  --radius: 0.625rem;  /* 10px — Apple's standard card radius */
+
+  /* Dark mode — macOS Big Sur+ "Graphite" warmth with blue accent */
+
+  /* Window background — matches macOS dark window (not pure black, slightly warm) */
+  --background: oklch(0.18 0.008 260);
+  --foreground: oklch(0.93 0.003 260);
+
+  /* Cards — elevated surface, slightly lighter than window */
+  --card: oklch(0.215 0.008 260);
+  --card-foreground: oklch(0.93 0.003 260);
+
+  /* Popovers — frosted, brightest surface */
+  --popover: oklch(0.24 0.008 260);
+  --popover-foreground: oklch(0.95 0.003 260);
+
+  /* Primary — Apple SF Blue (#0A84FF in dark mode) */
+  --primary: oklch(0.62 0.19 255);
+  --primary-foreground: oklch(0.98 0.003 260);
+
+  /* Secondary — system gray */
+  --secondary: oklch(0.28 0.008 260);
+  --secondary-foreground: oklch(0.93 0.003 260);
+
+  /* Muted — for subtle text and backgrounds */
+  --muted: oklch(0.255 0.006 260);
+  --muted-foreground: oklch(0.62 0.008 260);
+
+  /* Accent — hover states */
+  --accent: oklch(0.28 0.01 260);
+  --accent-foreground: oklch(0.95 0.003 260);
+
+  /* Destructive — systemRed */
+  --destructive: oklch(0.62 0.22 25);
+
+  /* Borders — barely visible, rely on spacing + shadow */
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 10%);
+  --ring: oklch(0.62 0.19 255 / 50%);
+
+  /* Apple semantic status colors — muted, not neon */
+  --status-running: oklch(0.72 0.15 145);    /* systemGreen — calmer than emerald */
+  --status-starting: oklch(0.78 0.14 70);     /* systemOrange */
+  --status-error: oklch(0.62 0.22 25);        /* systemRed */
+  --status-idle: oklch(0.55 0.008 260);       /* systemGray */
+  --status-stopped: oklch(0.42 0.008 260);    /* systemGray2 */
+
+  /* Chart colors — Apple's vibrancy palette */
+  --chart-1: oklch(0.62 0.19 255);   /* blue */
+  --chart-2: oklch(0.72 0.15 145);   /* green */
+  --chart-3: oklch(0.78 0.14 70);    /* orange */
+  --chart-4: oklch(0.65 0.18 305);   /* purple */
+  --chart-5: oklch(0.70 0.15 200);   /* teal */
+
+  /* Sidebar — macOS translucent sidebar (slightly darker, warm) */
+  --sidebar: oklch(0.16 0.008 260);
+  --sidebar-foreground: oklch(0.88 0.004 260);
+  --sidebar-primary: oklch(0.62 0.19 255);
+  --sidebar-primary-foreground: oklch(0.98 0.003 260);
+  --sidebar-accent: oklch(0.24 0.008 260);
+  --sidebar-accent-foreground: oklch(0.95 0.003 260);
+  --sidebar-border: oklch(1 0 0 / 6%);
+  --sidebar-ring: oklch(0.62 0.19 255 / 50%);
+}
+
+.light {
+  /* Light mode — macOS Big Sur default window */
+  --background: oklch(0.98 0.003 260);
+  --foreground: oklch(0.20 0.008 260);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.20 0.008 260);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.20 0.008 260);
+
+  /* Primary — Apple SF Blue (#007AFF in light mode) */
+  --primary: oklch(0.55 0.20 255);
+  --primary-foreground: oklch(0.99 0.002 260);
+
+  --secondary: oklch(0.94 0.004 260);
+  --secondary-foreground: oklch(0.20 0.008 260);
+
+  --muted: oklch(0.95 0.003 260);
+  --muted-foreground: oklch(0.50 0.008 260);
+
+  --accent: oklch(0.93 0.005 260);
+  --accent-foreground: oklch(0.20 0.008 260);
+
+  --destructive: oklch(0.55 0.22 25);
+
+  --border: oklch(0 0 0 / 10%);
+  --input: oklch(0 0 0 / 8%);
+  --ring: oklch(0.55 0.20 255 / 40%);
+
+  --status-running: oklch(0.55 0.15 145);
+  --status-starting: oklch(0.68 0.16 70);
+  --status-error: oklch(0.55 0.22 25);
+  --status-idle: oklch(0.65 0.008 260);
+  --status-stopped: oklch(0.50 0.008 260);
+
+  --chart-1: oklch(0.55 0.20 255);
+  --chart-2: oklch(0.55 0.15 145);
+  --chart-3: oklch(0.68 0.16 70);
+  --chart-4: oklch(0.58 0.18 305);
+  --chart-5: oklch(0.62 0.15 200);
+
+  --sidebar: oklch(0.96 0.004 260);
+  --sidebar-foreground: oklch(0.25 0.008 260);
+  --sidebar-primary: oklch(0.55 0.20 255);
+  --sidebar-primary-foreground: oklch(0.99 0.002 260);
+  --sidebar-accent: oklch(0.92 0.005 260);
+  --sidebar-accent-foreground: oklch(0.20 0.008 260);
+  --sidebar-border: oklch(0 0 0 / 8%);
+  --sidebar-ring: oklch(0.55 0.20 255 / 40%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Apple system font stack — SF Pro on macOS, falls back gracefully */
+    font-family: -apple-system, BlinkMacSystemFont, var(--font-geist-sans), "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;  /* Apple's signature tight tracking */
+  }
+  /* Code/logs use SF Mono on macOS */
+  code, pre, .font-mono, textarea[class*="font-mono"] {
+    font-family: "SF Mono", var(--font-geist-mono), "Fira Code", "Cascadia Code", Menlo, Monaco, monospace;
+    letter-spacing: 0;
+  }
+}
+
+/*
+ * Apple-style materials and effects
+ */
+
+/* Translucent sidebar — macOS vibrancy */
+.mir-sidebar {
+  background: var(--sidebar);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+/* Frosted popover — for dropdowns, modals */
+.mir-frosted {
+  background: var(--popover);
+  backdrop-filter: saturate(180%) blur(40px);
+  -webkit-backdrop-filter: saturate(180%) blur(40px);
+}
+
+/* Subtle elevation — Apple uses shadows, not borders, for depth */
+.mir-card {
+  background: var(--card);
+  box-shadow: 0 1px 3px oklch(0 0 0 / 0.08), 0 0 0 0.5px oklch(0 0 0 / 0.06);
+  border: none;
+}
+
+/* Hover elevation */
+.mir-card-hover:hover {
+  box-shadow: 0 4px 12px oklch(0 0 0 / 0.12), 0 0 0 0.5px oklch(0 0 0 / 0.08);
+}
+
+/* Custom scrollbar — Apple's thin overlay style */
+.mir-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.5 0 0 / 0.3) transparent;
+}
+.mir-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.mir-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.mir-scroll::-webkit-scrollbar-thumb {
+  background-color: oklch(0.5 0 0 / 0.25);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.mir-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(0.5 0 0 / 0.4);
+  background-clip: content-box;
+}
+
+/* Pulsing dot — Apple's subtle animation, not jarring */
+@keyframes mir-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.mir-pulse {
+  animation: mir-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Log line fade-in — subtle */
+@keyframes mir-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.mir-fade-in {
+  animation: mir-fade-in 200ms ease-out;
+}
+
+/* Apple-style focus ring — blue glow, not harsh */
+.mir-focus:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px oklch(0.55 0.20 255 / 30%);
+}
+
+/* Button press animation — Apple's scale-down on click */
+.mir-press:active {
+  transform: scale(0.97);
+}
+
+/* Backwards-compat aliases for existing class names */
+.devpilot-scroll { scrollbar-width: thin; scrollbar-color: oklch(0.5 0 0 / 0.3) transparent; }
+.devpilot-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.devpilot-scroll::-webkit-scrollbar-track { background: transparent; }
+.devpilot-scroll::-webkit-scrollbar-thumb {
+  background-color: oklch(0.5 0 0 / 0.25);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.devpilot-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(0.5 0 0 / 0.4);
+  background-clip: content-box;
+}
+.status-pulse { animation: mir-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.log-line-enter { animation: mir-fade-in 200ms ease-out; }
