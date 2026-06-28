@@ -1,4 +1,4 @@
-// Mir backend — real Rust process management service.
+// Miror backend — real Rust process management service.
 //
 // Architecture mirrors what Tauri would provide:
 //   - HTTP API (axum) for CRUD + process control
@@ -44,12 +44,12 @@ async fn main() -> Result<()> {
         .or_else(|_| std::env::var("DEVPILOT_DATA_DIR"))
         .map(PathBuf::from)
         .unwrap_or_else(|_| {
-            dirs_data_dir().unwrap_or_else(|| PathBuf::from("./.mir"))
+            dirs_data_dir().unwrap_or_else(|| PathBuf::from("./.miror"))
         });
     std::fs::create_dir_all(&data_dir)?;
-    let db_path = data_dir.join("mir.db");
+    let db_path = data_dir.join("miror.db");
 
-    tracing::info!("Mir backend starting");
+    tracing::info!("Miror backend starting");
     tracing::info!("  port: {}", port);
     tracing::info!("  db:   {}", db_path.display());
 
@@ -75,13 +75,13 @@ async fn main() -> Result<()> {
 
 fn dirs_data_dir() -> Option<PathBuf> {
     if cfg!(target_os = "macos") {
-        std::env::var("HOME").ok().map(|h| PathBuf::from(h).join("Library/Application Support/Mir"))
+        std::env::var("HOME").ok().map(|h| PathBuf::from(h).join("Library/Application Support/Miror"))
     } else if cfg!(target_os = "windows") {
-        std::env::var("LOCALAPPDATA").ok().map(|h| PathBuf::from(h).join("Mir"))
+        std::env::var("LOCALAPPDATA").ok().map(|h| PathBuf::from(h).join("Miror"))
     } else {
         std::env::var("XDG_DATA_HOME").ok()
             .map(PathBuf::from)
             .or_else(|| std::env::var("HOME").ok().map(|h| PathBuf::from(h).join(".local/share")))
-            .map(|p| p.join("mir"))
+            .map(|p| p.join("miror"))
     }
 }

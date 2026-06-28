@@ -125,7 +125,7 @@ pub struct PortMapping {
     pub pid: u32,
     pub process_name: String,
     pub process_cmd: String,
-    pub service_id: Option<String>,   // Mir service ID if it's one of ours
+    pub service_id: Option<String>,   // Miror service ID if it's one of ours
     pub service_name: Option<String>,
     pub local_address: String,
 }
@@ -141,8 +141,8 @@ pub struct PortScanResult {
 pub struct PortConflict {
     pub port: u16,
     pub holders: Vec<PortMapping>,   // 2+ holders = conflict
-    pub mir_service_id: Option<String>,
-    pub mir_service_name: Option<String>,
+    pub miror_service_id: Option<String>,
+    pub miror_service_name: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -123,8 +123,8 @@ fn position_popup(window: &WebviewWindow, x: i32, y: i32) -> tauri::Result<()> {
 // ---------------------------------------------------------------------------
 
 fn build_tray_menu(app: &AppHandle) -> tauri::Result<tauri::menu::Menu<tauri::Wry>> {
-    let show_main = MenuItemBuilder::with_id("show_main", "Open Mir").build(app)?;
-    let quit = MenuItemBuilder::with_id("quit", "Quit Mir").accelerator("Cmd+Q").build(app)?;
+    let show_main = MenuItemBuilder::with_id("show_main", "Open Miror").build(app)?;
+    let quit = MenuItemBuilder::with_id("quit", "Quit Miror").accelerator("Cmd+Q").build(app)?;
     let sep = PredefinedMenuItem::separator(app)?;
 
     Menu::with_items(app, &[&show_main, &sep, &quit])
@@ -135,7 +135,7 @@ fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
 
     let _tray = TrayIconBuilder::with_id(TrayIconId::new("main"))
         .icon(app.default_window_icon().unwrap().clone())
-        .tooltip("Mir — click to manage services")
+        .tooltip("Miror — click to manage services")
         .icon_as_template(true)
         .menu(&menu)
         .show_menu_on_left_click(false)

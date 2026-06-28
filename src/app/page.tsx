@@ -1,7 +1,7 @@
 "use client";
 
-import { MirApp } from "@/components/mir/mir-app";
-import { TrayPopup } from "@/components/mir/tray-popup";
+import { MirorApp } from "@/components/miror/miror-app";
+import { TrayPopup } from "@/components/miror/tray-popup";
 
 // Detect on first client render whether we're in the tray popup window.
 // Tauri loads "/?tray=1" for the popup, "/" for the main window.
@@ -14,5 +14,5 @@ export default function Home() {
   if (isTrayPopup) {
     return <TrayPopup />;
   }
-  return <MirApp />;
+  return <MirorApp />;
 }

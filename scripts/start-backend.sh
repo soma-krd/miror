@@ -1,9 +1,9 @@
 #!/bin/bash
-# Start the Mir Rust backend in a robust, detached way.
+# Start the Miror Rust backend in a robust, detached way.
 
 set -e
 BACKEND_DIR="/home/z/my-project/mini-services/devpilot-backend"
-DATA_DIR="/home/z/my-project/.mir"
+DATA_DIR="/home/z/my-project/.miror"
 LOG_FILE="$DATA_DIR/backend.log"
 PID_FILE="$DATA_DIR/backend.pid"
 
@@ -12,7 +12,7 @@ mkdir -p "$DATA_DIR"
 if [ -f "$PID_FILE" ]; then
     OLD_PID=$(cat "$PID_FILE")
     if kill -0 "$OLD_PID" 2>/dev/null; then
-        echo "Mir backend already running (pid=$OLD_PID)"
+        echo "Miror backend already running (pid=$OLD_PID)"
         exit 0
     fi
     rm -f "$PID_FILE"
@@ -35,4 +35,4 @@ if ! kill -0 "$NEW_PID" 2>/dev/null; then
     exit 1
 fi
 
-echo "Mir backend started (pid=$NEW_PID, port=3001)"
+echo "Miror backend started (pid=$NEW_PID, port=3001)"

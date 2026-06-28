@@ -1,30 +1,30 @@
-# Mir — Brand Guide
+# Miror — Brand Guide
 
-This document defines the Mir brand identity: name, symbol, color palette, typography, and usage rules. All assets live in `src-tauri/icons/` and `public/`.
+This document defines the Miror brand identity: name, symbol, color palette, typography, and usage rules. All assets live in `src-tauri/icons/` and `public/`.
 
 ---
 
 ## Brand Name
 
-**Mir** (pronounced "meer")
+**Miror** (pronounced "meer")
 
 The name carries two intentional meanings:
 
-1. **Mir means "peace" in Russian** — Mir brings order and calm to chaotic multi-service dev environments.
-2. **Mir was the iconic modular space station** — composed of multiple docked modules working as one. This is exactly Mir's purpose: manage multiple docked dev services (frontend, backend, workers, databases) as one unified command module.
+1. **Miror means "peace" in Russian** — Miror brings order and calm to chaotic multi-service dev environments.
+2. **Miror was the iconic modular space station** — composed of multiple docked modules working as one. This is exactly Miror's purpose: manage multiple docked dev services (frontend, backend, workers, databases) as one unified command module.
 
 **Tagline**: *Command module for local dev*
 
 **Do not**:
 - Capitalize as "MIR" (it's not an acronym)
 - Spell as "Mïr", "Myr", or "Mire"
-- Add a period after the name ("Mir." is wrong, except at end of sentence)
+- Add a period after the name ("Miror." is wrong, except at end of sentence)
 
 ---
 
 ## Brand Symbol
 
-The Mir symbol is a **hexagonal command module** containing a **run chevron** and a **status dot**.
+The Miror symbol is a **hexagonal command module** containing a **run chevron** and a **status dot**.
 
 ```
     ╱─────╲
@@ -41,7 +41,7 @@ The Mir symbol is a **hexagonal command module** containing a **run chevron** an
 |---------|---------|
 | **Hexagon** | The command module — stability, structure, the container that holds services. A hexagon is the most efficient tessellating shape in nature (honeycomb), suggesting modularity and efficient organization. |
 | **Chevron (▸)** | The run / terminal prompt — forward motion, action, "execute." Universally readable as "start" across cultures. |
-| **Status dot (●)** | The monitoring indicator — Mir is always watching your services. The amber color signals "alive and active" without using green (which is reserved for the hexagon/brand). |
+| **Status dot (●)** | The monitoring indicator — Miror is always watching your services. The amber color signals "alive and active" without using green (which is reserved for the hexagon/brand). |
 
 ### Clear space
 
@@ -110,7 +110,7 @@ For SVGs (which can't embed fonts), use the fallback chain `'Geist Sans', 'Inter
 
 ### Wordmark
 
-The wordmark is **"Mir"** set in Geist Sans Bold, lowercase except for the capital "M". The "i" has its dot replaced with a small emerald diamond (rotated 45° square) as a subtle brand detail.
+The wordmark is **"Miror"** set in Geist Sans Bold, lowercase except for the capital "M". The "i" has its dot replaced with a small emerald diamond (rotated 45° square) as a subtle brand detail.
 
 - Letter-spacing: -0.5 (tight)
 - Color: Slate-100 on dark backgrounds, Slate-900 on light backgrounds
@@ -132,7 +132,7 @@ Used for:
 
 ### 2. Brand symbol (SVG)
 
-**File**: `src-tauri/icons/mir-symbol.svg`
+**File**: `src-tauri/icons/miror-symbol.svg`
 
 The hexagon + chevron + dot, without the background square. Transparent background. Use in:
 - Sidebar (small)
@@ -141,9 +141,9 @@ The hexagon + chevron + dot, without the background square. Transparent backgrou
 
 ### 3. Full logo with wordmark (SVG)
 
-**File**: `src-tauri/icons/mir-logo.svg`
+**File**: `src-tauri/icons/miror-logo.svg`
 
-Symbol + "Mir" text. Horizontal layout. Use for:
+Symbol + "Miror" text. Horizontal layout. Use for:
 - Splash screens
 - README headers
 - Social media
@@ -151,13 +151,13 @@ Symbol + "Mir" text. Horizontal layout. Use for:
 
 ### 4. Sidebar logo (SVG, compact)
 
-**File**: `public/mir-sidebar-logo.svg`
+**File**: `public/miror-sidebar-logo.svg`
 
 Compact horizontal layout sized for the app sidebar (180×32 viewBox).
 
 ### 5. Favicon (SVG)
 
-**File**: `public/mir-favicon.svg`
+**File**: `public/miror-favicon.svg`
 
 Full app icon as SVG — renders crisply at 16×16 up to 512×512. Modern browsers prefer SVG favicons over .ico.
 
@@ -219,22 +219,22 @@ src-tauri/icons/
 ├── tray-icon-48-template.png
 ├── tray-icon-64-template.png
 ├── tray-icon-template.png     ← default template (22×22)
-├── mir-symbol.svg             ← symbol only
-└── mir-logo.svg               ← symbol + wordmark
+├── miror-symbol.svg             ← symbol only
+└── miror-logo.svg               ← symbol + wordmark
 
 public/
-├── mir-favicon.svg            ← browser favicon
-└── mir-sidebar-logo.svg       ← compact horizontal logo
+├── miror-favicon.svg            ← browser favicon
+└── miror-sidebar-logo.svg       ← compact horizontal logo
 ```
 
 ---
 
 ## Regenerating Assets
 
-All assets are generated by `scripts/generate-mir-icons.py`:
+All assets are generated by `scripts/generate-miror-icons.py`:
 
 ```bash
-python3 scripts/generate-mir-icons.py
+python3 scripts/generate-miror-icons.py
 ```
 
 This regenerates all PNGs and the .ico. SVGs are hand-authored and should be edited directly.
@@ -251,7 +251,7 @@ cargo tauri icon icons/app-icon-1024.png
 
 ## Brand Voice
 
-Mir's voice is **calm, technical, and direct** — like an air traffic controller.
+Miror's voice is **calm, technical, and direct** — like an air traffic controller.
 
 - **Calm**: Never use exclamation marks in UI copy. Use periods. State facts.
 - **Technical**: Use precise terminology (PID, SIGTERM, stdout) without over-explaining.

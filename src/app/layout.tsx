@@ -14,27 +14,27 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mir — Command Module for Local Dev",
+  title: "Miror — Command Module for Local Dev",
   description:
-    "Mir is a cross-platform desktop control tower for managing multiple projects and their services from a single unified panel.",
+    "Miror is a cross-platform desktop control tower for managing multiple projects and their services from a single unified panel.",
   keywords: [
-    "Mir", "developer tools", "process manager", "Tauri",
+    "Miror", "developer tools", "process manager", "Tauri",
     "Next.js", "dev workspace", "dashboard", "control tower", "command module",
   ],
-  authors: [{ name: "Mir" }],
+  authors: [{ name: "Miror" }],
   icons: {
-    icon: "/mir-favicon.svg",
-    shortcut: "/mir-favicon.svg",
-    apple: "/mir-favicon.svg",
+    icon: "/miror-favicon.svg",
+    shortcut: "/miror-favicon.svg",
+    apple: "/miror-favicon.svg",
   },
   openGraph: {
-    title: "Mir — Command Module for Local Dev",
+    title: "Miror — Command Module for Local Dev",
     description: "Cross-platform desktop control tower for managing multiple projects and their services.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mir — Command Module for Local Dev",
+    title: "Miror — Command Module for Local Dev",
     description: "Cross-platform desktop control tower for managing multiple projects and their services.",
   },
 };
@@ -47,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/mir-favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/miror-favicon.svg" type="image/svg+xml" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}

@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Mir",
+  "productName": "Miror",
   "version": "1.0.0",
-  "identifier": "com.mir.app",
+  "identifier": "com.miror.app",
   "build": {
     "beforeDevCommand": "bun run dev",
     "beforeBuildCommand": "bun run build",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Mir — Command Module for Local Dev",
+        "title": "Miror — Command Module for Local Dev",
         "width": 1440,
         "height": 900,
         "minWidth": 1024,
@@ -32,7 +32,7 @@
       "iconPath": "icons/tray-icon-22.png",
       "iconAsTemplate": true,
       "menuOnLeftClick": false,
-      "tooltip": "Mir — click to manage services"
+      "tooltip": "Miror — click to manage services"
     }
   },
   "bundle": {
@@ -52,11 +52,11 @@
     "externalBin": [
       "binaries/devpilot-backend"
     ],
-    "publisher": "Mir",
+    "publisher": "Miror",
     "category": "DeveloperTool",
     "shortDescription": "Command module for local dev environments",
-    "longDescription": "Mir is a cross-platform desktop control tower for managing multiple projects and their services from a single unified panel with system tray integration.",
-    "copyright": "© 2026 Mir",
+    "longDescription": "Miror is a cross-platform desktop control tower for managing multiple projects and their services from a single unified panel with system tray integration.",
+    "copyright": "© 2026 Miror",
     "macOS": {
       "frameworks": ["AppKit"],
       "minimumSystemVersion": "10.15"

@@ -42,7 +42,7 @@ export interface BackendNotification {
 
 type WsListener = (event: WsEvent) => void;
 
-class MirBackend {
+class MirorBackend {
   private ws: WebSocket | null = null;
   private wsListeners = new Set<WsListener>();
   private wsReconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -76,11 +76,11 @@ class MirBackend {
   deleteProject(id: string) {
     return this.http<{ ok: boolean }>("DELETE", `/projects/${id}`);
   }
-  exportMirJson(id: string) {
-    return this.http<unknown>("GET", `/projects/${id}/mir.json`);
+  exportMirorJson(id: string) {
+    return this.http<unknown>("GET", `/projects/${id}/miror.json`);
   }
-  importMirJson(id: string) {
-    return this.http<{ ok: boolean; imported: number }>("POST", `/projects/${id}/mir.json`);
+  importMirorJson(id: string) {
+    return this.http<{ ok: boolean; imported: number }>("POST", `/projects/${id}/miror.json`);
   }
   getDockerInfo(id: string) {
     return this.http<{ exists: boolean; path: string; services: string[] }>("GET", `/projects/${id}/docker`);
@@ -300,7 +300,7 @@ class MirBackend {
 
     this.ws.onopen = () => {
       this.wsConnected = true;
-      console.log("[Mir] WebSocket connected to", url);
+      console.log("[Miror] WebSocket connected to", url);
     };
 
     this.ws.onmessage = (e) => {
@@ -313,7 +313,7 @@ class MirBackend {
     };
 
     this.ws.onerror = (e) => {
-      console.warn("[Mir] WebSocket error:", e);
+      console.warn("[Miror] WebSocket error:", e);
     };
 
     this.ws.onclose = () => {
@@ -342,4 +342,4 @@ class MirBackend {
 }
 
 // Singleton — the entire app talks to one backend
-export const backend = new MirBackend();
+export const backend = new MirorBackend();

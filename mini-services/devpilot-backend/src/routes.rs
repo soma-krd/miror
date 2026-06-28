@@ -496,7 +496,7 @@ async fn scan_ports_endpoint(State(s): State<AppState>) -> impl IntoResponse {
         Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     };
 
-    // Cross-reference with Mir's running services to fill in service_id/name
+    // Cross-reference with Miror's running services to fill in service_id/name
     let services = match s.store.list_services().await {
         Ok(svcs) => svcs,
         Err(_) => vec![],
@@ -529,14 +529,14 @@ async fn scan_ports_endpoint(State(s): State<AppState>) -> impl IntoResponse {
         .iter()
         .filter(|(_, holders)| holders.len() > 1)
         .map(|((port, _), holders)| {
-            let mir_svc = holders.iter().find_map(|h| {
+            let miror_svc = holders.iter().find_map(|h| {
                 h.service_id.as_ref().map(|id| (id.clone(), h.service_name.clone().unwrap_or_default()))
             });
             PortConflict {
                 port: *port,
                 holders: holders.iter().map(|h| (*h).clone()).collect(),
-                mir_service_id: mir_svc.as_ref().map(|(id, _)| id.clone()),
-                mir_service_name: mir_svc.as_ref().map(|(_, name)| name.clone()),
+                miror_service_id: miror_svc.as_ref().map(|(id, _)| id.clone()),
+                miror_service_name: miror_svc.as_ref().map(|(_, name)| name.clone()),
             }
         })
         .collect();
@@ -559,7 +559,7 @@ async fn kill_port_holder(
     Json(payload): Json<KillPortPayload>,
 ) -> impl IntoResponse {
     // Find the holder of this port. If a specific PID is given, kill that one.
-    // Otherwise, kill the first non-Mir process holding the port.
+    // Otherwise, kill the first non-Miror process holding the port.
     let mappings = match crate::services::scan_ports().await {
         Ok(m) => m,
         Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
@@ -568,12 +568,12 @@ async fn kill_port_holder(
     let target_pid = if let Some(pid) = payload.pid {
         pid
     } else {
-        // Find first non-Mir holder
-        let mir_pids: std::collections::HashSet<u32> = {
+        // Find first non-Miror holder
+        let miror_pids: std::collections::HashSet<u32> = {
             let procs = s.pm.processes.lock().await;
             procs.values().map(|h| h.pid).collect()
         };
-        match mappings.iter().find(|m| m.port == port && !mir_pids.contains(&m.pid)) {
+        match mappings.iter().find(|m| m.port == port && !miror_pids.contains(&m.pid)) {
             Some(m) => m.pid,
             None => match mappings.iter().find(|m| m.port == port) {
                 Some(m) => m.pid,

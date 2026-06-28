@@ -1,0 +1,30 @@
+<!-- Miror — Brand Symbol (SVG)
+     Hexagonal command module + run chevron + status dot.
+     Scalable to any size. Use this for the sidebar, marketing, etc. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background (optional — remove for transparent use) -->
+  <rect width="512" height="512" rx="96" fill="#0F172A"/>
+
+  <!-- Hexagon outline (emerald) -->
+  <!-- Flat-top hexagon centered at (256, 256), radius 176 -->
+  <!-- Vertices: (432,256), (344,408.84), (168,408.84), (80,256), (168,103.16), (344,103.16) -->
+  <polygon
+    points="432,256 344,408.84 168,408.84 80,256 168,103.16 344,103.16"
+    fill="#10B981"
+    fill-opacity="0.10"
+    stroke="#10B981"
+    stroke-width="14"
+    stroke-linejoin="round"
+  />
+
+  <!-- Chevron (run prompt) — white, centered slightly left -->
+  <polygon
+    points="200,176 244,176 296,256 244,336 200,336 248,256"
+    fill="#F1F5F9"
+  />
+
+  <!-- Status dot (amber, upper-right interior) -->
+  <circle cx="344" cy="168" r="12" fill="#FBBF24"/>
+  <!-- Glow ring -->
+  <circle cx="344" cy="168" r="18" fill="#FBBF24" fill-opacity="0.25"/>
+</svg>

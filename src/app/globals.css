@@ -51,7 +51,7 @@
 }
 
 /*
- * Mir — Apple-inspired design system
+ * Miror — Apple-inspired design system
  *
  * Design principles:
  *   1. Clarity — content is the interface. Chrome recedes.
@@ -208,80 +208,80 @@
  */
 
 /* Translucent sidebar — macOS vibrancy */
-.mir-sidebar {
+.miror-sidebar {
   background: var(--sidebar);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
 
 /* Frosted popover — for dropdowns, modals */
-.mir-frosted {
+.miror-frosted {
   background: var(--popover);
   backdrop-filter: saturate(180%) blur(40px);
   -webkit-backdrop-filter: saturate(180%) blur(40px);
 }
 
 /* Subtle elevation — Apple uses shadows, not borders, for depth */
-.mir-card {
+.miror-card {
   background: var(--card);
   box-shadow: 0 1px 3px oklch(0 0 0 / 0.08), 0 0 0 0.5px oklch(0 0 0 / 0.06);
   border: none;
 }
 
 /* Hover elevation */
-.mir-card-hover:hover {
+.miror-card-hover:hover {
   box-shadow: 0 4px 12px oklch(0 0 0 / 0.12), 0 0 0 0.5px oklch(0 0 0 / 0.08);
 }
 
 /* Custom scrollbar — Apple's thin overlay style */
-.mir-scroll {
+.miror-scroll {
   scrollbar-width: thin;
   scrollbar-color: oklch(0.5 0 0 / 0.3) transparent;
 }
-.mir-scroll::-webkit-scrollbar {
+.miror-scroll::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-.mir-scroll::-webkit-scrollbar-track {
+.miror-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
-.mir-scroll::-webkit-scrollbar-thumb {
+.miror-scroll::-webkit-scrollbar-thumb {
   background-color: oklch(0.5 0 0 / 0.25);
   border-radius: 4px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
-.mir-scroll::-webkit-scrollbar-thumb:hover {
+.miror-scroll::-webkit-scrollbar-thumb:hover {
   background-color: oklch(0.5 0 0 / 0.4);
   background-clip: content-box;
 }
 
 /* Pulsing dot — Apple's subtle animation, not jarring */
-@keyframes mir-pulse {
+@keyframes miror-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
-.mir-pulse {
-  animation: mir-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.miror-pulse {
+  animation: miror-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Log line fade-in — subtle */
-@keyframes mir-fade-in {
+@keyframes miror-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-.mir-fade-in {
-  animation: mir-fade-in 200ms ease-out;
+.miror-fade-in {
+  animation: miror-fade-in 200ms ease-out;
 }
 
 /* Apple-style focus ring — blue glow, not harsh */
-.mir-focus:focus-visible {
+.miror-focus:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px oklch(0.55 0.20 255 / 30%);
 }
 
 /* Button press animation — Apple's scale-down on click */
-.mir-press:active {
+.miror-press:active {
   transform: scale(0.97);
 }
 
@@ -299,5 +299,5 @@
   background-color: oklch(0.5 0 0 / 0.4);
   background-clip: content-box;
 }
-.status-pulse { animation: mir-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-.log-line-enter { animation: mir-fade-in 200ms ease-out; }
+.status-pulse { animation: miror-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.log-line-enter { animation: miror-fade-in 200ms ease-out; }

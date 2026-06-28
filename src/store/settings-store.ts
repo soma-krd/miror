@@ -9,7 +9,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 export type ThemeMode = "dark" | "light";
 
-export interface MirSettings {
+export interface MirorSettings {
   // General
   autoStartWorkspace: boolean;
   autoRestartOnCrash: boolean;
@@ -36,12 +36,12 @@ export interface MirSettings {
   localOnlyExecution: boolean;
 
   // Actions
-  set: <K extends keyof MirSettings>(key: K, value: MirSettings[K]) => void;
+  set: <K extends keyof MirorSettings>(key: K, value: MirorSettings[K]) => void;
   setTheme: (theme: ThemeMode) => void;
   reset: () => void;
 }
 
-const DEFAULTS: Omit<MirSettings, "set" | "setTheme" | "reset"> = {
+const DEFAULTS: Omit<MirorSettings, "set" | "setTheme" | "reset"> = {
   autoStartWorkspace: true,
   autoRestartOnCrash: true,
   maxRestartAttempts: 3,
@@ -63,11 +63,11 @@ const DEFAULTS: Omit<MirSettings, "set" | "setTheme" | "reset"> = {
   localOnlyExecution: true,
 };
 
-export const useSettings = create<MirSettings>()(
+export const useSettings = create<MirorSettings>()(
   persist(
     (set) => ({
       ...DEFAULTS,
-      set: (key, value) => set({ [key]: value } as Partial<MirSettings>),
+      set: (key, value) => set({ [key]: value } as Partial<MirorSettings>),
       setTheme: (theme) => {
         set({ theme });
         // Apply the theme class immediately
@@ -79,7 +79,7 @@ export const useSettings = create<MirSettings>()(
       },
     }),
     {
-      name: "mir-settings",
+      name: "miror-settings",
       storage: createJSONStorage(() => localStorage),
       version: 2,
       // Apply theme on rehydration

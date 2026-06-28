@@ -28,12 +28,12 @@ export const useDbConnections = create<DbConnectionsState>()(
   persist(
     (set) => ({
       connections: [
-        // Seed with Mir's own SQLite DB
+        // Seed with Miror's own SQLite DB
         {
-          id: "conn_mir_db",
-          name: "Mir Internal DB",
+          id: "conn_miror_db",
+          name: "Miror Internal DB",
           type: "sqlite" as DatabaseType,
-          connectionString: "/home/z/my-project/.mir/mir.db",
+          connectionString: "/home/z/my-project/.miror/miror.db",
           createdAt: Date.now(),
         },
       ],
@@ -51,7 +51,7 @@ export const useDbConnections = create<DbConnectionsState>()(
         set((s) => ({ connections: s.connections.filter((c) => c.id !== id) })),
     }),
     {
-      name: "mir-db-connections",
+      name: "miror-db-connections",
       storage: createJSONStorage(() => localStorage),
       version: 1,
     }

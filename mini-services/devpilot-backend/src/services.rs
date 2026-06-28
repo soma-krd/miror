@@ -277,9 +277,9 @@ pub async fn is_port_in_use(port: u16) -> bool {
 
 // --- Port Conflict Radar (Feature 1) ---------------------------------------
 // Scans /proc/net/tcp + /proc/net/udp on Linux to build a map of all listening
-// ports → owning processes. Cross-references with Mir's running services to
+// ports → owning processes. Cross-references with Miror's running services to
 // detect conflicts (2+ processes on the same port) and identify "orphan"
-// processes holding ports that Mir services need.
+// processes holding ports that Miror services need.
 
 #[cfg(target_os = "linux")]
 pub async fn scan_ports() -> Result<Vec<crate::models::PortMapping>> {

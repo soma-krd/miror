@@ -1,4 +1,4 @@
-// Mir core data models — mirror the Tauri/Rust backend contract
+// Miror core data models — mirror the Tauri/Rust backend contract
 // These types are the source of truth for both the (future) Rust IPC layer
 // and the current in-browser mock process manager.
 
@@ -85,8 +85,8 @@ export interface PortMapping {
 export interface PortConflict {
   port: number;
   holders: PortMapping[];
-  mirServiceId?: string;
-  mirServiceName?: string;
+  mirorServiceId?: string;
+  mirorServiceName?: string;
 }
 
 export interface PortScanResult {
@@ -119,7 +119,7 @@ export interface ServiceConfig {
 // IPC contract — these match the Rust signatures in the PRD.
 // In production these become `invoke<T>('start_service', { serviceId })` calls.
 // In the mock, the process manager implements them directly.
-export interface MirIpc {
+export interface MirorIpc {
   startService(serviceId: string): Promise<void>;
   stopService(serviceId: string): Promise<void>;
   killProcess(serviceId: string, force: boolean): Promise<void>;
