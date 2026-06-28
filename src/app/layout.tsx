@@ -23,9 +23,13 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Miror" }],
   icons: {
-    icon: "/miror-favicon.svg",
-    shortcut: "/miror-favicon.svg",
-    apple: "/miror-favicon.svg",
+    icon: [
+      { url: "/miror-favicon.svg", type: "image/svg+xml" },
+      { url: "/miror-icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/miror-icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/miror-icon-32.png",
+    apple: "/miror-icon-512.png",
   },
   openGraph: {
     title: "Miror — Command Module for Local Dev",
@@ -48,6 +52,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/miror-favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/miror-icon-32.png" type="image/png" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/miror-icon-512.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}

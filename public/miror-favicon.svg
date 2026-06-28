@@ -1,25 +1,4 @@
-<!-- Miror — Favicon (SVG, scalable) -->
-<!-- Renders crisply at 16x16 up to 512x512 -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <!-- Slate background (rounded for app-like feel) -->
-  <rect width="512" height="512" rx="96" fill="#0F172A"/>
-
-  <!-- Hexagon outline -->
-  <polygon
-    points="432,256 344,408.84 168,408.84 80,256 168,103.16 344,103.16"
-    fill="#10B981"
-    fill-opacity="0.10"
-    stroke="#10B981"
-    stroke-width="16"
-    stroke-linejoin="round"
-  />
-
-  <!-- Chevron -->
-  <polygon
-    points="196,172 248,172 300,256 248,340 196,340 252,256"
-    fill="#F1F5F9"
-  />
-
-  <!-- Status dot -->
-  <circle cx="344" cy="168" r="14" fill="#FBBF24"/>
+<!-- Miror — Favicon (generated from miror-logo.png) -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+  <image width="32" height="32" href="data:image/png;base64,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"/>
 </svg>

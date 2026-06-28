@@ -1,286 +1,269 @@
 """
 Miror — brand asset generator
 
-Generates a cohesive icon set for the Miror app:
-  - App icon (1024x1024 source for cargo tauri icon)
-  - Tray icons (16/22/32/48/64 px, colored + template)
-  - SVG logo (symbol + wordmark)
-  - SVG favicon
-  - Windows .ico
+Generates the full icon set from the source logo at project root:
+  miror-logo.png
 
-BRAND SYSTEM
-============
-Name:     Miror
-Metaphor: Command module for local dev (named after the modular space station)
-Symbol:   Hexagonal command module + run chevron + status dot
-          - Hexagon = the module/container (stability, structure)
-          - Chevron ▸ = "run" / terminal prompt (action, forward motion)
-          - Status dot = live service indicator (awareness, monitoring)
+Outputs match BRAND-GUIDE.md inventory under src-tauri/icons/ and public/.
 
-Palette:
-  Slate-900    #0F172A   background (deep space)
-  Slate-800    #1E293B   surface
-  Emerald-500  #10B981   primary (running / active)
-  Emerald-400  #34D399   primary-bright (highlights)
-  Amber-400    #FBBF24   accent (starting / warning)
-  Red-500      #EF4444   error
-  Slate-100    #F1F5F9   text (foreground)
-
-Typography:
-  Geist Sans Bold — wordmark + headings
-  Geist Sans Regular — body
-  Geist Mono — logs, code, telemetry
+Usage:
+  python3 scripts/generate-miror-icons.py
+  cd src-tauri && cargo tauri icon icons/app-icon-1024.png
 """
 
-from PIL import Image, ImageDraw, ImageFont
-import math
+from __future__ import annotations
+
 import os
-import struct
+import sys
+from pathlib import Path
 
-OUTPUT_DIR = "/home/z/my-project/src-tauri/icons"
-PUBLIC_DIR = "/home/z/my-project/public"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-os.makedirs(PUBLIC_DIR, exist_ok=True)
+from PIL import Image, ImageDraw, ImageFilter
 
-# --- Brand palette ---------------------------------------------------------
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE_LOGO = ROOT / "miror-logo.png"
+OUTPUT_DIR = ROOT / "src-tauri" / "icons"
+PUBLIC_DIR = ROOT / "public"
+
+# Brand palette (BRAND-GUIDE.md)
 SLATE_900 = (15, 23, 42, 255)
-SLATE_800 = (30, 41, 59, 255)
-SLATE_700 = (51, 65, 85, 255)
-EMERALD_500 = (16, 185, 129, 255)
-EMERALD_400 = (52, 211, 153, 255)
-EMERALD_600 = (5, 150, 105, 255)
-AMBER_400 = (251, 191, 36, 255)
-WHITE = (255, 255, 255, 255)
-WHITE_80 = (255, 255, 255, 204)
+BG_TOLERANCE = 40
+CORNER_RADIUS_RATIO = 0.2  # iOS/macOS rounded-square
 
 
-def hexagon_vertices(cx, cy, r, flat_top=True):
-    """Return 6 vertices of a hexagon centered at (cx, cy) with radius r."""
-    verts = []
-    for i in range(6):
-        if flat_top:
-            angle = math.radians(60 * i)
-        else:
-            angle = math.radians(60 * i + 30)
-        verts.append((cx + r * math.cos(angle), cy + r * math.sin(angle)))
-    return verts
+def ensure_source() -> None:
+    if not SOURCE_LOGO.exists():
+        print(f"ERROR: Source logo not found: {SOURCE_LOGO}", file=sys.stderr)
+        sys.exit(1)
 
 
-def draw_hexagon_outline(draw, cx, cy, r, color, width):
-    """Draw a hexagon outline with the given line width."""
-    verts = hexagon_vertices(cx, cy, r)
-    # Draw thick line segments with round joins
-    for i in range(6):
-        x1, y1 = verts[i]
-        x2, y2 = verts[(i + 1) % 6]
-        draw.line([x1, y1, x2, y2], fill=color, width=width)
-    # Round joins — draw circles at each vertex
-    dot_r = width // 2
-    for vx, vy in verts:
-        draw.ellipse([vx - dot_r, vy - dot_r, vx + dot_r, vy + dot_r], fill=color)
+def load_logo_rgba() -> Image.Image:
+    return Image.open(SOURCE_LOGO).convert("RGBA")
 
 
-def draw_chevron(draw, cx, cy, size, color, thickness):
-    """Draw a bold right-pointing chevron ▸ centered at (cx, cy).
-    size = total width of the chevron
-    thickness = stroke width
-    """
-    # Chevron defined by 7 points (filled polygon for bold look)
-    h = size * 0.55  # height
-    w = size * 0.45  # width of the open side
-    tip = size * 0.30  # how far the point extends
-    t = thickness  # stroke thickness
-
-    # Points (clockwise from top-left outer)
-    points = [
-        (cx - w/2, cy - h/2),              # top-left outer
-        (cx - w/2 + t, cy - h/2),          # top-left inner
-        (cx + tip - t, cy),                # center inner (tip side)
-        (cx - w/2 + t, cy + h/2),          # bottom-left inner
-        (cx - w/2, cy + h/2),              # bottom-left outer
-        (cx - w/2 + t + t*0.6, cy),        # center outer (open side) — creates the chevron notch
-    ]
-    # Actually, let's define it more carefully as a filled shape
-    # The chevron is like ">": two strokes meeting at a point on the right
-    # Filled version: a polygon with 6 vertices
-    points = [
-        (cx - w/2, cy - h/2),           # 0: top-left
-        (cx - w/2 + t, cy - h/2),       # 1: top-left-inner
-        (cx + tip - t*0.5, cy - t/2),   # 2: upper-mid-inner (near tip)
-        (cx + tip, cy),                 # 3: tip
-        (cx + tip - t*0.5, cy + t/2),   # 4: lower-mid-inner
-        (cx - w/2 + t, cy + h/2),       # 5: bottom-left-inner
-        (cx - w/2, cy + h/2),           # 6: bottom-left
-        (cx - w/2 + t + t*0.5, cy),     # 7: mid-left (notch)
-    ]
-    draw.polygon(points, fill=color)
+def detect_background(img: Image.Image) -> tuple[int, int, int]:
+    arr = img.load()
+    w, h = img.size
+    samples = [arr[0, 0][:3], arr[w - 1, 0][:3], arr[0, h - 1][:3], arr[w - 1, h - 1][:3]]
+    return tuple(int(sum(c[i] for c in samples) / len(samples)) for i in range(3))
 
 
-def draw_status_dot(draw, cx, cy, r, color):
-    """Draw a small filled circle (status indicator)."""
-    draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=color)
+def resize_square(img: Image.Image, size: int) -> Image.Image:
+    if img.size == (size, size):
+        return img.copy()
+    return img.resize((size, size), Image.LANCZOS)
 
 
-# --- App icon (1024x1024 source) ------------------------------------------
-
-def render_app_icon(size):
-    """Render the full-color app icon at the given size.
-    Slate rounded-square background + emerald hexagon + white chevron + amber dot.
-    """
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-
-    # Background: rounded square with gradient
-    # Simple two-tone gradient (top-left lighter, bottom-right darker)
-    grad = Image.new("RGBA", (size, size), SLATE_900)
-    grad_draw = ImageDraw.Draw(grad)
-    # Overlay a slightly lighter rectangle in the top-left for subtle gradient
-    for i in range(size):
-        alpha = int(15 * (1 - i / size))
-        grad_draw.line([(0, i), (size, i)], fill=(30, 41, 59, alpha))
-    img = Image.alpha_composite(img, grad)
-    draw = ImageDraw.Draw(img)
-
-    # Rounded square mask for the background
-    radius = size // 5  # iOS/macOS-style rounding
+def apply_rounded_mask(img: Image.Image, radius_ratio: float = CORNER_RADIUS_RATIO) -> Image.Image:
+    """Apply iOS/macOS-style rounded corners per brand guide."""
+    size = img.size[0]
+    radius = int(size * radius_ratio)
     mask = Image.new("L", (size, size), 0)
-    mask_draw = ImageDraw.Draw(mask)
-    mask_draw.rounded_rectangle([0, 0, size, size], radius=radius, fill=255)
-    img.putalpha(mask)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, size, size], radius=radius, fill=255)
+    out = img.copy()
+    out.putalpha(mask)
+    return out
 
-    # --- Hexagon (command module) ---
-    cx, cy = size // 2, size // 2
-    hex_r = int(size * 0.34)
-    hex_width = max(2, int(size * 0.025))
 
-    # Hexagon fill (subtle emerald tint)
-    verts = hexagon_vertices(cx, cy, hex_r - hex_width)
-    overlay = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    overlay_draw = ImageDraw.Draw(overlay)
-    overlay_draw.polygon(verts, fill=(16, 185, 129, 25))
-    img = Image.alpha_composite(img, overlay)
-    draw = ImageDraw.Draw(img)
+def extract_symbol(img: Image.Image, bg: tuple[int, int, int], tolerance: int = BG_TOLERANCE) -> Image.Image:
+    """Extract the M mark onto a transparent background."""
+    rgba = img.convert("RGBA")
+    pixels = rgba.load()
+    w, h = rgba.size
+    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    out_pixels = out.load()
 
-    # Hexagon outline (emerald)
-    draw_hexagon_outline(draw, cx, cy, hex_r, EMERALD_500, hex_width)
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = pixels[x, y]
+            if a == 0:
+                continue
+            diff = abs(r - bg[0]) + abs(g - bg[1]) + abs(b - bg[2])
+            if diff > tolerance:
+                out_pixels[x, y] = (r, g, b, a)
 
-    # --- Chevron (run prompt) ---
-    chevron_size = int(size * 0.22)
-    # Nudge chevron slightly left so it's centered in the hexagon's visual space
-    draw_chevron(draw, cx - int(size * 0.02), cy, chevron_size, WHITE, max(2, int(size * 0.04)))
+    bbox = out.getbbox()
+    if bbox:
+        out = out.crop(bbox)
+    return out
 
-    # --- Status dot (amber, upper-right interior) ---
-    dot_offset = int(hex_r * 0.55)
-    dot_r = max(2, int(size * 0.022))
-    draw_status_dot(draw, cx + dot_offset, cy - dot_offset, dot_r, AMBER_400)
-    # Subtle glow ring
-    glow_r = dot_r + max(1, int(size * 0.008))
-    draw_status_dot(draw, cx + dot_offset, cy - dot_offset, glow_r, (251, 191, 36, 60))
 
+def fit_symbol(symbol: Image.Image, size: int, padding_ratio: float = 0.12) -> Image.Image:
+    """Scale symbol to fit inside a square canvas with padding."""
+    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    pad = max(1, int(size * padding_ratio))
+    inner = size - 2 * pad
+    sym = symbol.copy()
+    sym.thumbnail((inner, inner), Image.LANCZOS)
+    x = (size - sym.width) // 2
+    y = (size - sym.height) // 2
+    canvas.paste(sym, (x, y), sym)
+    return canvas
+
+
+def to_template(symbol_rgba: Image.Image) -> Image.Image:
+    """macOS template: pure white glyph, alpha from symbol."""
+    arr = symbol_rgba.split()
+    alpha = arr[3]
+    white = Image.new("RGBA", symbol_rgba.size, (255, 255, 255, 255))
+    white.putalpha(alpha)
+    return white
+
+
+def sharpen_small_icon(img: Image.Image, size: int) -> Image.Image:
+    """Light sharpen for tiny tray sizes."""
+    if size <= 32:
+        return img.filter(ImageFilter.UnsharpMask(radius=0.6, percent=120, threshold=2))
     return img
 
 
-# --- Tray icon (template — white on transparent) --------------------------
-
-def render_tray_icon_template(size):
-    """macOS template image: pure white with alpha, no background.
-    macOS auto-renders template images as black in light mode, white in dark mode.
-    """
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-
-    cx, cy = size // 2, size // 2
-    hex_r = int(size * 0.42)
-    hex_width = max(1, int(size * 0.08))
-
-    # Hexagon outline (white)
-    draw_hexagon_outline(draw, cx, cy, hex_r, WHITE, hex_width)
-
-    # Chevron (white)
-    chevron_size = int(size * 0.28)
-    draw_chevron(draw, cx - int(size * 0.02), cy, chevron_size, WHITE, max(1, int(size * 0.10)))
-
-    return img
+def save_png(img: Image.Image, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path, format="PNG", optimize=True)
+    print(f"  {path.relative_to(ROOT)}")
 
 
-# --- Tray icon (colored — for Linux/Windows) -------------------------------
+def png_to_b64(img: Image.Image) -> str:
+    import base64
+    import io
 
-def render_tray_icon_colored(size):
-    """Colored tray icon for Linux/Windows: emerald glyph on transparent."""
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-
-    cx, cy = size // 2, size // 2
-    hex_r = int(size * 0.42)
-    hex_width = max(1, int(size * 0.08))
-
-    # Hexagon outline (emerald)
-    draw_hexagon_outline(draw, cx, cy, hex_r, EMERALD_500, hex_width)
-
-    # Chevron (emerald-bright)
-    chevron_size = int(size * 0.28)
-    draw_chevron(draw, cx - int(size * 0.02), cy, chevron_size, EMERALD_400, max(1, int(size * 0.10)))
-
-    # Status dot (amber)
-    dot_offset = int(hex_r * 0.55)
-    dot_r = max(1, int(size * 0.06))
-    draw_status_dot(draw, cx + dot_offset, cy - dot_offset, dot_r, AMBER_400)
-
-    return img
+    buf = io.BytesIO()
+    img.save(buf, format="PNG", optimize=True)
+    return base64.b64encode(buf.getvalue()).decode("ascii")
 
 
-# --- Generate all PNG assets -----------------------------------------------
+def write_embedded_svg(img: Image.Image, svg_path: Path, view_size: int, label: str) -> None:
+    """Write a minimal SVG wrapper embedding a PNG (for favicon / sidebar)."""
+    data = png_to_b64(img)
+    svg = f"""<!-- Miror — {label} (generated from miror-logo.png) -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 {view_size} {view_size}">
+  <image width="{view_size}" height="{view_size}" href="data:image/png;base64,{data}"/>
+</svg>
+"""
+    svg_path.write_text(svg, encoding="utf-8")
+    print(f"  {svg_path.relative_to(ROOT)}")
 
-def main():
-    print("Generating Miror brand assets...")
 
-    # 1. App icon (1024x1024 source)
-    app_icon = render_app_icon(1024)
-    app_icon.save(os.path.join(OUTPUT_DIR, "app-icon-1024.png"))
-    print("  app-icon-1024.png (1024x1024)")
+def write_sidebar_svg(symbol_img: Image.Image, svg_path: Path) -> None:
+    """Sidebar: symbol + Miror wordmark per brand guide."""
+    data = png_to_b64(symbol_img)
+    svg = f"""<!-- Miror — Sidebar logo (generated from miror-logo.png) -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 180 32" fill="none">
+  <image x="0" y="0" width="32" height="32" href="data:image/png;base64,{data}"/>
+  <text x="40" y="22" font-family="'Geist Sans', 'Inter', system-ui, sans-serif" font-size="18" font-weight="700" fill="#F1F5F9" letter-spacing="-0.5">Miror</text>
+</svg>
+"""
+    svg_path.write_text(svg, encoding="utf-8")
+    print(f"  {svg_path.relative_to(ROOT)}")
 
-    # Also save smaller app icon sizes for direct use
-    for s in [512, 256, 128, 64, 32]:
-        scaled = app_icon.resize((s, s), Image.LANCZOS)
-        scaled.save(os.path.join(OUTPUT_DIR, f"app-icon-{s}.png"))
-        print(f"  app-icon-{s}.png ({s}x{s})")
 
-    # 2. Tray icons — template (macOS)
-    for s in [16, 22, 32, 48, 64]:
-        icon = render_tray_icon_template(s)
-        if s == 22:
-            icon.save(os.path.join(OUTPUT_DIR, "tray-icon-template.png"))
-        icon.save(os.path.join(OUTPUT_DIR, f"tray-icon-{s}-template.png"))
-    print("  tray-icon-{16,22,32,48,64}-template.png (macOS template)")
+def main() -> None:
+    ensure_source()
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
 
-    # 3. Tray icons — colored (Linux/Windows)
-    for s in [16, 22, 32, 48, 64]:
-        icon = render_tray_icon_colored(s)
-        icon.save(os.path.join(OUTPUT_DIR, f"tray-icon-{s}.png"))
-    print("  tray-icon-{16,22,32,48,64}.png (colored)")
+    print(f"Source: {SOURCE_LOGO.relative_to(ROOT)}")
+    print("Generating Miror brand assets...\n")
 
-    # 4. Copy the 22px colored as the default tray icon
-    render_tray_icon_colored(22).save(os.path.join(OUTPUT_DIR, "tray-icon-22.png"))
-    # Copy the 22px template as the macOS default
-    render_tray_icon_template(22).save(os.path.join(OUTPUT_DIR, "tray-icon-template.png"))
+    source = load_logo_rgba()
+    bg = detect_background(source)
 
-    # 5. Generate Windows .ico (multi-size)
+    # --- App icons (1024 source + downscales) ---
+    app_icon = resize_square(source, 1024)
+    app_icon = apply_rounded_mask(app_icon)
+
+    for size in [1024, 512, 256, 128, 64, 32]:
+        scaled = app_icon if size == 1024 else app_icon.resize((size, size), Image.LANCZOS)
+        save_png(scaled, OUTPUT_DIR / f"app-icon-{size}.png")
+
+    save_png(app_icon, OUTPUT_DIR / "icon.png")
+
+    # --- Tauri platform bundle icons (cargo tauri icon equivalent) ---
+    platform_sizes = {
+        "32x32.png": 32,
+        "128x128.png": 128,
+        "128x128@2x.png": 256,
+    }
+    for name, size in platform_sizes.items():
+        save_png(app_icon.resize((size, size), Image.LANCZOS), OUTPUT_DIR / name)
+
+    icns_path = OUTPUT_DIR / "icon.icns"
+    app_icon.save(icns_path, format="ICNS")
+    print(f"  {icns_path.relative_to(ROOT)}")
+
+    square_logos = {
+        "Square30x30Logo.png": 30,
+        "Square44x44Logo.png": 44,
+        "Square71x71Logo.png": 71,
+        "Square89x89Logo.png": 89,
+        "Square107x107Logo.png": 107,
+        "Square142x142Logo.png": 142,
+        "Square150x150Logo.png": 150,
+        "Square284x284Logo.png": 284,
+        "Square310x310Logo.png": 310,
+        "StoreLogo.png": 50,
+    }
+    for name, size in square_logos.items():
+        save_png(app_icon.resize((size, size), Image.LANCZOS), OUTPUT_DIR / name)
+
+    # --- Windows .ico ---
     ico_sizes = [16, 32, 48, 64, 128, 256]
     ico_images = [app_icon.resize((s, s), Image.LANCZOS) for s in ico_sizes]
+    ico_path = OUTPUT_DIR / "icon.ico"
     ico_images[0].save(
-        os.path.join(OUTPUT_DIR, "icon.ico"),
+        ico_path,
         format="ICO",
         sizes=[(s, s) for s in ico_sizes],
         append_images=ico_images[1:],
     )
-    print("  icon.ico (Windows multi-size)")
+    print(f"  {ico_path.relative_to(ROOT)}")
 
-    # 6. Save app icon as icon.png (Tauri default name)
-    app_icon.save(os.path.join(OUTPUT_DIR, "icon.png"))
-    print("  icon.png (Tauri source)")
+    # --- Tray icons from extracted symbol ---
+    symbol = extract_symbol(source, bg)
+    tray_sizes = [16, 22, 32, 48, 64]
 
-    print(f"\nAll raster assets saved to {OUTPUT_DIR}")
-    print("Next: generate SVG logo + favicon + wordmark")
+    for size in tray_sizes:
+        colored = fit_symbol(symbol, size)
+        colored = sharpen_small_icon(colored, size)
+        save_png(colored, OUTPUT_DIR / f"tray-icon-{size}.png")
+
+        template = to_template(colored)
+        save_png(template, OUTPUT_DIR / f"tray-icon-{size}-template.png")
+
+    # Default tray aliases (brand guide)
+    fit_symbol(symbol, 22).save(OUTPUT_DIR / "tray-icon-template.png", format="PNG", optimize=True)
+    print("  src-tauri/icons/tray-icon-template.png")
+
+    # --- Public web assets ---
+    favicon_512 = app_icon.resize((512, 512), Image.LANCZOS)
+    favicon_32 = app_icon.resize((32, 32), Image.LANCZOS)
+    save_png(favicon_512, PUBLIC_DIR / "miror-icon-512.png")
+    save_png(favicon_32, PUBLIC_DIR / "miror-icon-32.png")
+
+    # Proper favicon.ico for legacy browsers
+    fav_ico_sizes = [16, 32, 48]
+    fav_ico = [favicon_32.resize((s, s), Image.LANCZOS) for s in fav_ico_sizes]
+    fav_ico[0].save(
+        PUBLIC_DIR / "favicon.ico",
+        format="ICO",
+        sizes=[(s, s) for s in fav_ico_sizes],
+        append_images=fav_ico[1:],
+    )
+    print("  public/favicon.ico")
+
+    symbol_32 = fit_symbol(symbol, 32)
+    save_png(symbol_32, OUTPUT_DIR / "miror-symbol-32.png")
+    save_png(symbol_32, PUBLIC_DIR / "miror-symbol-32.png")
+
+    write_embedded_svg(favicon_32, PUBLIC_DIR / "miror-favicon.svg", 32, "Favicon")
+    write_embedded_svg(symbol_32, OUTPUT_DIR / "miror-symbol.svg", 32, "Brand symbol")
+    write_embedded_svg(app_icon.resize((200, 200), Image.LANCZOS), OUTPUT_DIR / "miror-logo.svg", 200, "Logo mark")
+    write_sidebar_svg(symbol_32, PUBLIC_DIR / "miror-sidebar-logo.svg")
+
+    # Copy source into icons for reference
+    save_png(resize_square(source, 1024), OUTPUT_DIR / "miror-logo-source.png")
+
+    print(f"\nDone. Raster assets in {OUTPUT_DIR.relative_to(ROOT)}/")
+    print("Next: cd src-tauri && cargo tauri icon icons/app-icon-1024.png")
 
 
 if __name__ == "__main__":

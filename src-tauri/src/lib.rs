@@ -12,7 +12,7 @@ use serde::Serialize;
 use std::sync::Mutex;
 use tauri::{
     AppHandle, Manager, WebviewWindow, WebviewWindowBuilder, WindowEvent,
-    Emitter,
+    Emitter, Image,
     menu::{Menu, MenuItem, PredefinedMenuItem, Submenu, MenuItemBuilder},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent, TrayIconId},
     webview::WebviewUrl,
@@ -133,12 +133,23 @@ fn build_tray_menu(app: &AppHandle) -> tauri::Result<tauri::menu::Menu<tauri::Wr
 fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
     let menu = build_tray_menu(app)?;
 
-    let _tray = TrayIconBuilder::with_id(TrayIconId::new("main"))
-        .icon(app.default_window_icon().unwrap().clone())
+    #[cfg(target_os = "macos")]
+    const TRAY_ICON: Image<'_> = tauri::include_image!("icons/tray-icon-22-template.png");
+    #[cfg(not(target_os = "macos"))]
+    const TRAY_ICON: Image<'_> = tauri::include_image!("icons/tray-icon-22.png");
+
+    let mut builder = TrayIconBuilder::with_id(TrayIconId::new("main"))
+        .icon(TRAY_ICON)
         .tooltip("Miror — click to manage services")
-        .icon_as_template(true)
         .menu(&menu)
-        .show_menu_on_left_click(false)
+        .show_menu_on_left_click(false);
+
+    #[cfg(target_os = "macos")]
+    {
+        builder = builder.icon_as_template(true);
+    }
+
+    let _tray = builder
         .on_menu_event(|app, event| {
             match event.id.as_ref() {
                 "show_main" => {

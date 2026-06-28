@@ -1,30 +1,4 @@
-<!-- Miror — Brand Symbol (SVG)
-     Hexagonal command module + run chevron + status dot.
-     Scalable to any size. Use this for the sidebar, marketing, etc. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <!-- Background (optional — remove for transparent use) -->
-  <rect width="512" height="512" rx="96" fill="#0F172A"/>
-
-  <!-- Hexagon outline (emerald) -->
-  <!-- Flat-top hexagon centered at (256, 256), radius 176 -->
-  <!-- Vertices: (432,256), (344,408.84), (168,408.84), (80,256), (168,103.16), (344,103.16) -->
-  <polygon
-    points="432,256 344,408.84 168,408.84 80,256 168,103.16 344,103.16"
-    fill="#10B981"
-    fill-opacity="0.10"
-    stroke="#10B981"
-    stroke-width="14"
-    stroke-linejoin="round"
-  />
-
-  <!-- Chevron (run prompt) — white, centered slightly left -->
-  <polygon
-    points="200,176 244,176 296,256 244,336 200,336 248,256"
-    fill="#F1F5F9"
-  />
-
-  <!-- Status dot (amber, upper-right interior) -->
-  <circle cx="344" cy="168" r="12" fill="#FBBF24"/>
-  <!-- Glow ring -->
-  <circle cx="344" cy="168" r="18" fill="#FBBF24" fill-opacity="0.25"/>
+<!-- Miror — Brand symbol (generated from miror-logo.png) -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+  <image width="32" height="32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAGS0lEQVR42u1Wf2ydZRV+zvt99/betaXt+gNYg3WbDLfBHC7rlsmP4YhWg4KLEoczxKEo4BQUE8XpJA3RgEbiNhMDzmhQGDoDJs4sg5hNjU7L1MQyiEGGabtubXfbtffe73vf88M/brf1lvZq/Hsn+fLly3fe9zzvc573nANctIs2w5a996PLu382PLThJ68d71q/aREAUBT/3/tlIgIArF29eOHLP1r7p9F914598pau7pk+NPNj+ZMDw8X6zkvJgMZ4sjT1xKfWnDi07xW4CDAFzP7n4HFEYDH03HDlFU/dV9/XykMdCIaCz/qFdw/WnfNzMxeVso2XwivgU51IFuTqtz9zfNkdD94MlQpaov8amIgQOYDFsO1DK9Yc+FLu363JQIcvO1Z2WEAhO9O/CgCYVRUQc45EMDHmE9ry2KEVn/vuXREZzAzkXM3ggEEU2LFt1Qd+eGfo09NDPvhYY9WYWKFcvaZqt8BwHBQqBiFy5Cg3ebqcpJvuf3LFjn2P5PM5MlWQi94U3DmCmcGiLPZ88dr7em+d+pU/fSYxycSRqkMwgBUUpAYAMYgoRBQqClEDRS5XGikmE6tvf2hJ729+2tjaFpkKKLoAInIEVUO+oYH271j52L3vGt2dDk0kkcU5p+oQFAiCylvnB6BiMBEoCyQoNCgkCMOQ9aOTSeGKjVs6e397pOUtS/MmArgYkSOIGtrbm+KDO5c8u/mqkw+mJ8tJZFHWWBhBAbbKEwxIbX4AJgrlSgqUFRwCGHEslHGqlpXCWV9ovnpDR+/h/raVa1ugDFHD0q7W/OGvdf7++tahD6cjnDihbKTqYqLYggFeYd6AAJCvwUAICgkM8Smry6N8om9f4fH3d6bFwmmta3CqChTP8hm6bPHCrx8aaF797vZVXfn8kYfajy/PDK1LJ+BJEWecuSRVvW3PxNsO9PN3XAxwMEaYBlIrBRoY6kVVFBZ8Iv0vDk0+umlJOvzPv1p9c1Y4MIrjSRFNC0o33b/9rm53y6JorKs86abAimzG4lNneLBn1+Rlz/f714qBCmAFvCpSBdJaGmCppIAF6hkQAVwEHewvTn3rpnXJq797DgtacxK81zKrZ/YhYW9lU2Xjuhyyr74R/rLxe5PLjpwII5EDYtUcyoJzwa2mCL1AAoMDgz1DgwAqQJSBTZwMU99+3+bS0f2Po779Eg0pQzWCgTRVrs+h+Y8v+1/cuHtqwyujUqqLAFGAmHLwBnib1kGNFEg5QJIUknpw4issVKgByAG+aKXvf+SB0qHdn9V8fRasYmwa5ZDd/2f/6M1PFG8/VVKO3IXbZmICr1Cv0FShszRQ1WksDZWa7xRwARamARgAKDBdipNnHtjjfKmMy1e/owHa/PQL6TfueK74MAA4qpzcTVdtYiWkCk0NogYxqgGAGSYKcgYjDwtaXXfNKiCIUPrlV/eibUndI6nqwGQxVEoxoLP7lQBIDRIUZIBoLQY8AxrBSAB4UOrDrIZ5oSMSAaP/SgdmtNXZzdIRQYI6eIVM515m+VQ3ewkwZpCJMykBcW5Rhf9zRNgsNhwICljVn/PiYjM0ZNCuwcACqBl41oGqKQ5eETyMOUZ5nNFwZU/2unvfU8m/w5vZUNgcwWNXqbxb17atur4FW8ZKxqbIBgZShs4PQMzBe67A1dgmx5mvuudg3Q3bPwiT8yKsZREBrMAn1rWv2XtN+e9hqhyLkZNgSL0x2Nz8AIb6diFTH4PLCUQASKxnBpOweNvzdTd+fjPsHBNzm6NKju9Z37bxB28v9hVGij5hB2N1JbGkKYP4WAE/rwJctcPJowfRtLQTjYu7kZ4tAZQBIbapiZJdft1Wp+O/tlP/GAJFmE185Co3YPOKxmV7r077RsbKiTiXgZorC5K2LHJHxujpzxyzrcUZaag+Tjqu+MOX78bAC99EXdMChHICDoCxahKgcceqeaehaTxvpXJXnCRIlFjFXCJIOuqQOzBMu7YctY+dSoznZ4BcpeoNHn6RspcMo/Wa2xBKHpnGPI289JT9bdfDkHQO2U3fFQJeGtXX23LE3S3omfLgliyyP36DvvDpY7bTq8HRXKurB7vzaqfld95KPc8WsL53D2Xq3RyDNOYasR0Rdr+TvvJ6jxvZudJ9fKZGLtpFm23/AQBj1ozK2i4jAAAAAElFTkSuQmCC"/>
 </svg>
